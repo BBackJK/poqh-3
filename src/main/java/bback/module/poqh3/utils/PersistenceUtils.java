@@ -1,9 +1,6 @@
 package bback.module.poqh3.utils;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -68,7 +65,15 @@ public final class PersistenceUtils {
             Field f = fields[i];
             Transient transientField = f.getAnnotation(Transient.class);
             if ( transientField != null ) continue;
-            result.add(f);
+
+            if ( !isEmbeddedField(f) ) {
+                result.add(f);
+                continue;
+            }
+
+            Class<?> embeddedColumnType = f.getType();
+            List<Field> embeddedColumnFieldList = getColumnFields(embeddedColumnType);
+            result.addAll(embeddedColumnFieldList);
         }
 
         return result;
@@ -87,10 +92,100 @@ public final class PersistenceUtils {
         return result;
     }
 
+    public static List<Field> getForeignFieldList(Class<?> sourceEntity) {
+        List<Field> result = new ArrayList<>();
+        List<Field> fieldList = getColumnFields(sourceEntity);
+        for (Field f : fieldList) {
+            ManyToOne manyToOne = f.getAnnotation(ManyToOne.class);
+            OneToOne oneToOne = f.getAnnotation(OneToOne.class);
+            if (
+                    manyToOne != null
+                            || (oneToOne != null && oneToOne.mappedBy().isEmpty())
+            ) {
+                result.add(f);
+            }
+        }
+
+        return result;
+    }
+
+    public static Field getRelationField(Class<?> sourceEntity, Class<?> targetEntity) {
+        if (sourceEntity == null || targetEntity == null) {
+            return null;
+        }
+
+        Field field = null;
+        List<Field> columnFieldList = getColumnFields(sourceEntity);
+        for (Field f : columnFieldList) {
+            if (f.getType().equals(targetEntity)) {
+                ManyToOne manyToOne = f.getAnnotation(ManyToOne.class);
+                OneToOne oneToOne = f.getAnnotation(OneToOne.class);
+                if (manyToOne != null || oneToOne != null) {
+                    field = f;
+                    break;
+                }
+            }
+        }
+
+        return field;
+    }
+
+    public static List<Field> getRelationFields(Class<?> entityType) {
+        if (!isEntityClass(entityType)) {
+            return Collections.emptyList();
+        }
+
+        List<Field> result = new ArrayList<>();
+        List<Field> columnFieldList = getColumnFields(entityType);
+        for (Field f : columnFieldList) {
+            JoinColumn joinColumn = f.getAnnotation(JoinColumn.class);
+            if (joinColumn != null) {
+                result.add(f);
+            }
+        }
+
+        return result;
+    }
+
+    public static List<Field> getPrimaryFieldList(Class<?> sourceEntity) {
+        List<Field> result = new ArrayList<>();
+        List<Field> fieldList = getColumnFields(sourceEntity);
+        for (Field f : fieldList) {
+            Id id = f.getAnnotation(Id.class);
+            if ( id != null ) {
+                result.add(f);
+                continue;
+            }
+
+            EmbeddedId embeddedId = f.getAnnotation(EmbeddedId.class);
+            if ( embeddedId != null ) {
+                result.addAll(getColumnFields(f.getType()));
+            }
+        }
+        return result;
+    }
+
     public static boolean isEntityClass(Class<?> classType) {
         if (classType == null) {
             return false;
         }
         return classType.getAnnotation(Entity.class) != null;
+    }
+
+    public static boolean isRelationEntity(Class<?> sourceEntity, Class<?> targetEntity) {
+        return getRelationField(sourceEntity, targetEntity) != null;
+    }
+
+    private static boolean isEmbeddedField(Field f) {
+        boolean result = false;
+        Embedded embedded = f.getAnnotation(Embedded.class);
+        if (embedded != null) {
+            Class<?> columnType = f.getType();
+            Embeddable embeddable = columnType.getAnnotation(Embeddable.class);
+            if (embeddable != null) {
+                result = true;
+            }
+        }
+        return result;
     }
 }

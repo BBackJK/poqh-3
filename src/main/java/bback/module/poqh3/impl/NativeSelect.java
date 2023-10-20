@@ -9,13 +9,7 @@ import java.util.List;
 
 public class NativeSelect implements Select {
 
-    private final Class<?> resultType;
     private final List<Column> constructorColumnList = new ArrayList<>();
-
-
-    public NativeSelect(Class<?> resultType) {
-        this.resultType = resultType;
-    }
 
     @Override
     public void setSelectColumnList(List<Column> columnList) {

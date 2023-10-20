@@ -12,4 +12,6 @@ public interface From extends Native, JPQL {
     }
 
     Table getRoot();
+
+    boolean isJpql();
 }

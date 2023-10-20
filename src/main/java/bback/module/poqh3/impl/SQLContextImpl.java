@@ -66,7 +66,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
             table.AS(1);
         }
         this.isJpql = table.isJpql();
-        this.select = table.isJpql() ? new JpqlSelect(this.resultType) : new NativeSelect(this.resultType);
+        this.select = table.isJpql() ? new JpqlSelect(this.resultType) : new NativeSelect();
         this.from = new FromImpl(table);
         return this.from;
     }

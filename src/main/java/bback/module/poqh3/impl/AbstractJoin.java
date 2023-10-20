@@ -1,7 +1,5 @@
 package bback.module.poqh3.impl;
 
-
-
 import bback.module.poqh3.From;
 import bback.module.poqh3.Join;
 import bback.module.poqh3.Predictor;
@@ -45,10 +43,12 @@ abstract class AbstractJoin implements Join {
         sb.append(this.joinTable.toQuery());
         sb.append(" ");
         sb.append(this.joinTable.getAlias());
-        sb.append("\n\ton ");
 
         int onCount = this.onList.size();
-        for (int i=0; i<onCount; i++) {
+        if ( onCount > 0 ) {
+            sb.append("\n\ton ");
+        }
+        for ( int i=0; i<onCount; i++ ) {
             int n = i+1;
             boolean isLast = n == onCount;
             Predictor predictor = this.onList.get(i);
@@ -59,8 +59,8 @@ abstract class AbstractJoin implements Join {
     }
 
     private void validationQuery() {
-        if ( this.from == null || this.joinTable == null || this.onList.isEmpty() ) {
-            throw new DMLValidationException(" join table empty or not used 'ON' keyword ");
+        if ( this.from == null || this.joinTable == null ) {
+            throw new DMLValidationException(" join table empty  ");
         }
     }
 }

@@ -2,25 +2,33 @@ package bback.module.poqh3.impl;
 
 import bback.module.poqh3.Column;
 import bback.module.poqh3.Table;
+import bback.module.poqh3.exceptions.DeveloperMistakeException;
 import bback.module.poqh3.utils.PersistenceUtils;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
-public class NativeTable implements Table {
+public class JpqlForeignTable implements Table {
 
-    private final Class<?> entityType;
-    private final String tableName;
+    private final Table root;
+    private final Class<?> foreignType;
+    private final Field relationField;
     private String alias;
 
-    public NativeTable(Class<?> entityType, String alias) {
-        this.entityType = entityType;
-        this.tableName = PersistenceUtils.getTableName(entityType);
+    public JpqlForeignTable(Table root, Class<?> foreignType, String alias) {
+        this.root = root;
+        this.foreignType = foreignType;
         this.alias = alias;
+        this.relationField = PersistenceUtils.getRelationField(this.root.getEntityType(), foreignType);
+        if (this.relationField == null) {
+            throw new DeveloperMistakeException();
+        }
     }
+
 
     @Override
     public String toQuery() {
-        return this.tableName;
+        return String.format("%s.%s", this.root.getAlias(), this.relationField.getName());
     }
 
     @Override
@@ -35,7 +43,7 @@ public class NativeTable implements Table {
 
     @Override
     public Column COLUMN(String field, String alias) {
-        return new NativeColumn(this, field, alias);
+        return new JpqlColumn(this, field, alias);
     }
 
     @Override
@@ -50,7 +58,7 @@ public class NativeTable implements Table {
 
     @Override
     public Column[] ALL() {
-        List<String> fieldNameList = PersistenceUtils.getNativeColumns(this.entityType);
+        List<String> fieldNameList = PersistenceUtils.getJpqlColumns(this.foreignType);
         int fieldNameCount = fieldNameList.size();
         Column[] result = new Column[fieldNameCount];
         for (int i=0; i<fieldNameCount;i++) {
@@ -71,11 +79,11 @@ public class NativeTable implements Table {
 
     @Override
     public Class<?> getEntityType() {
-        return this.entityType;
+        return this.foreignType;
     }
 
     @Override
     public boolean isJpql() {
-        return false;
+        return true;
     }
 }

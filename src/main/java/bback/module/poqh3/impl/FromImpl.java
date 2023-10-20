@@ -5,8 +5,8 @@ import bback.module.poqh3.Join;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.exceptions.DMLValidationException;
 import bback.module.poqh3.utils.Objects;
+import bback.module.poqh3.utils.PersistenceUtils;
 import jakarta.persistence.criteria.JoinType;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +44,18 @@ class FromImpl implements From {
 
     @Override
     public Join JOIN(Table joinTable, JoinType joinType) {
-        if ( Objects.orEmpty( joinTable, joinType ) ) {
-            throw new DMLValidationException("join table or join type is null.");
+        this.validationTable(joinTable, joinType);
+
+        if ( !joinTable.hasAlias() ) {
+            int joinCount = this.joinList.size();
+            joinTable.AS(joinCount + 2);
+        }
+
+        if (this.isJpql()) {
+            boolean isRelation = PersistenceUtils.isRelationEntity(this.root.getEntityType(), joinTable.getEntityType());
+            if (isRelation) {
+                joinTable = new JpqlForeignTable(this.root, joinTable.getEntityType(), joinTable.getAlias());
+            }
         }
 
         Join join = null;
@@ -61,12 +71,6 @@ class FromImpl implements From {
                 break;
         }
         this.joinList.add(join);
-
-        if ( !joinTable.hasAlias() ) {
-            int joinCount = this.joinList.size();
-            joinTable.AS(joinCount + 1);
-        }
-
         return join;
     }
 
@@ -75,5 +79,17 @@ class FromImpl implements From {
         return this.root;
     }
 
+    @Override
+    public boolean isJpql() {
+        return this.root.isJpql();
+    }
 
+    private void validationTable(Table joinTable, JoinType joinType) {
+        if ( Objects.orEmpty( joinTable, joinType ) ) {
+            throw new DMLValidationException("join table or join type is null.");
+        }
+        if (this.isJpql() && !joinTable.isJpql()) {
+            throw new DMLValidationException("JPQL Table is only use JPQL Table.");
+        }
+    }
 }

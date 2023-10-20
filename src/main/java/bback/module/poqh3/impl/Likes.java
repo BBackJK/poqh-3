@@ -18,6 +18,6 @@ class Likes implements Predictor {
 
     @Override
     public String toQuery() {
-        return String.format("%s like '%s'", source.toQuery(), likeType.toQuery(target.toQuery()));
+        return String.format("%s like '%s'", source.toQuery(), likeType.toQuery(target.toQuery()).replace("'", ""));
     }
 }

@@ -19,7 +19,8 @@ public interface Table extends JPQL, Native {
 
     String getAlias();
 
+    Class<?> getEntityType();
+
     boolean isJpql();
 
-    boolean isNative();
 }

@@ -22,7 +22,9 @@ class JpqlColumn extends AbstractPredictorColumn {
 
     @Override
     public String getAttr() {
-        return hasAlias() ? this.alias : this.field;
+        return Strings.toCamel(
+                hasAlias() ? this.alias : this.field
+        );
     }
 
     @Override

@@ -4,8 +4,6 @@ import bback.module.poqh3.impl.NativeTable;
 
 public interface Native extends SQL {
 
-    String ASTERISK = "*";
-
     static Table TABLE(Class<?> clazz) {
         return TABLE(clazz, null);
     }
