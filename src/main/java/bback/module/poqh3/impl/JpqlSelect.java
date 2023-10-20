@@ -89,6 +89,9 @@ public class JpqlSelect implements Select {
     private void setSelectColumnByMatchingConstructor(Constructor<?> constructor, List<String> attrList) {
         Parameter[] parameters = constructor.getParameters();
         int parameterCount = parameters.length;
+        if (parameterCount > 0 && !this.constructorColumnList.isEmpty()) {
+            this.constructorColumnList.clear();
+        }
         for (int i=0; i<parameterCount;i++) {
             Parameter parameter = parameters[i];
             int foundAttrIndex = attrList.indexOf(parameter.getName());
