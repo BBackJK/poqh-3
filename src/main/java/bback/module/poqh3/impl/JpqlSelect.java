@@ -3,6 +3,7 @@ package bback.module.poqh3.impl;
 import bback.module.poqh3.Column;
 import bback.module.poqh3.Select;
 import bback.module.poqh3.exceptions.NoConstructorException;
+import bback.module.poqh3.utils.ClassUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -68,13 +69,17 @@ public class JpqlSelect implements Select {
         Constructor<?> target = null;
         int constructorCount = constructors.length;
         int maxConstructParameterMatchingCount = 0;
-        for (int i=0;i<constructorCount;i++) {
+        master: for (int i=0;i<constructorCount;i++) {
             Constructor<?> candidate = constructors[i];
             Parameter[] parameters = candidate.getParameters();
             int constructorParameterCount = parameters.length;
             int matchingCount = 0;
             for (int n=0; n< constructorParameterCount; n++) {
                 Parameter parameter = parameters[n];
+                Class<?> parameterType = parameter.getType();
+                if (ClassUtils.isListType(parameterType) || ClassUtils.isMapType(parameterType)) {
+                    continue master;
+                }
                 boolean isExistAttrParameter = attrList.contains(parameter.getName());
                 if ( isExistAttrParameter ) matchingCount++;
             }
@@ -97,6 +102,8 @@ public class JpqlSelect implements Select {
             int foundAttrIndex = attrList.indexOf(parameter.getName());
             if ( foundAttrIndex > -1 ) {
                 this.constructorColumnList.add(this.selectColumnList.get(foundAttrIndex));
+            } else {
+                this.constructorColumnList.add(new NullColumn(parameter.getType()));
             }
         }
     }

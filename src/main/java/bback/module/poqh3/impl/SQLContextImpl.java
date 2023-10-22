@@ -87,7 +87,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         try {
             return resultHandler.list(query);
         } catch (IllegalStateException | PersistenceException e) {
-            LOGGER.error("error query :: " + query);
+            LOGGER.error("error query :: \n" + query);
             LOGGER.error(e.getMessage());
             throw new PersistenceException(e);
         } catch (Exception e) {
@@ -106,7 +106,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         try {
             return resultHandler.detail(query);
         } catch (IllegalStateException | PersistenceException e) {
-            LOGGER.error("error query :: " + query);
+            LOGGER.error("error query :: \n" + query);
             LOGGER.error(e.getMessage());
             throw new PersistenceException(e);
         } catch (Exception e) {

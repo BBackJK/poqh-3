@@ -5,6 +5,7 @@ import bback.module.poqh3.impl.Value;
 public interface Column extends Native, JPQL {
 
     String getAttr();
+    boolean hasAlias();
 
     Predictor EQ(Column column);
 
@@ -18,9 +19,6 @@ public interface Column extends Native, JPQL {
     default Predictor LIKE(Column column) {
         return LIKE(column, LikeType.ANY);
     }
-
-    boolean hasAlias();
-
 
     static Value VALUE(Object data) {
         return new Value(data);
