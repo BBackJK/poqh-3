@@ -41,12 +41,49 @@ public final class PersistenceUtils {
         int columnCount = columnList.size();
         for (int i=0; i<columnCount; i++) {
             Field field = columnList.get(i);
+
             Column column = field.getAnnotation(Column.class);
-            String columnName = Strings.camel2Under(field.getName());
             if ( column != null && !column.name().isEmpty() ) {
-                columnName = column.name();
+                result.add(column.name());
+                continue;
             }
-            result.add(columnName);
+
+            Field relationField = getRelationField(entityType, field.getType());
+            if ( relationField != null ) {
+                // 관계를 설정할 때 JoinColumns 을 이용한 경우
+                JoinColumns joinColumns = relationField.getAnnotation(JoinColumns.class);
+                if (joinColumns != null) {
+                    for (JoinColumn jc : joinColumns.value()) {
+                        if (!jc.referencedColumnName().isEmpty()) {
+                            result.add(jc.referencedColumnName().toLowerCase());
+                        } else if (!jc.name().isEmpty()){
+                            result.add(jc.name().toLowerCase());
+                        }
+                    }
+                } else {
+                    // 관계를 설정할 때 JoinColumn 을 이용한 경우
+                    JoinColumn joinColumn = relationField.getAnnotation(JoinColumn.class);
+                    if ( joinColumn != null && !joinColumn.name().isEmpty() ) {
+                        result.add(joinColumn.name().toLowerCase());
+                    } else {
+                        // 관계를 설정할 때 joinColumn 없이, 그냥 ManyToOne 혹은 OneToOne 어노테이션만 사용하여 관계를 맺은 경우 (==> 해당 객체의 ID 값들이 foreign Key 로 반영)
+                        List<Field> primaryFieldList = getPrimaryFieldList(relationField.getType());
+                        int primaryFieldCount = primaryFieldList.size();
+                        for (int j=0; j<primaryFieldCount;j++) {
+                            Field primaryField = primaryFieldList.get(j);
+                            Column primaryColumn = primaryField.getAnnotation(Column.class);
+                            String primaryFieldName = String.format("%s_%s", Strings.camel2Under(relationField.getName()), Strings.camel2Under(primaryField.getName()));
+                            if ( primaryColumn != null && !primaryColumn.name().isEmpty() ) {
+                                primaryFieldName = String.format("%s_%s", Strings.camel2Under(relationField.getName()), primaryColumn.name());
+                            }
+                            result.add(primaryFieldName);
+                        }
+                    }
+                }
+                continue;
+            }
+
+            result.add(Strings.camel2Under(field.getName()));
         }
 
         return result;

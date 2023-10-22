@@ -11,7 +11,7 @@ public final class Strings {
             return result.toString();
         }
 
-        result.append(target.charAt(0));
+        result.append(Character.toLowerCase(target.charAt(0)));
         int charCount = target.length();
         for (int i=1; i<charCount; i++) {
             char c = target.charAt(i);
