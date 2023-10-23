@@ -5,13 +5,19 @@ import java.util.Optional;
 
 public interface SQLContext<T> extends SQL {
 
+    void SELECT(Column... columns);
+
     From FROM(Table table);
 
-    void SELECT(Column... columns);
+    void WHERE(Predictor... predictors);
+
+    Order ORDER(Column column);
+
+    void ORDER(Column... columns);
+
+    void GROUP(Column... columns);
 
     List<T> toResultList();
 
     Optional<T> toResult();
-
-    void WHERE(Predictor... predictors);
 }

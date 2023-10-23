@@ -2,6 +2,7 @@ package bback.module.poqh3.impl;
 
 import bback.module.poqh3.Column;
 import bback.module.poqh3.Table;
+import bback.module.poqh3.exceptions.TableIsOnlyAcceptEntityException;
 import bback.module.poqh3.utils.PersistenceUtils;
 
 import java.util.List;
@@ -13,6 +14,9 @@ public class NativeTable implements Table {
     private String alias;
 
     public NativeTable(Class<?> entityType, String alias) {
+        if (!PersistenceUtils.isEntityClass(entityType)) {
+            throw new TableIsOnlyAcceptEntityException();
+        }
         this.entityType = entityType;
         this.tableName = PersistenceUtils.getTableName(entityType);
         this.alias = alias;

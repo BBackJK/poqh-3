@@ -2,6 +2,7 @@ package bback.module.poqh3.impl;
 
 import bback.module.poqh3.Column;
 import bback.module.poqh3.Table;
+import bback.module.poqh3.exceptions.TableIsOnlyAcceptEntityException;
 import bback.module.poqh3.utils.PersistenceUtils;
 import bback.module.poqh3.utils.Strings;
 import jakarta.persistence.JoinColumn;
@@ -18,6 +19,9 @@ public class JpqlTable implements Table {
     private String alias;
 
     public JpqlTable(Class<?> entityType, String alias) {
+        if (!PersistenceUtils.isEntityClass(entityType)) {
+            throw new TableIsOnlyAcceptEntityException();
+        }
         this.entityType = entityType;
         this.alias = alias;
         this.foreignFieldList = PersistenceUtils.getForeignFieldList(entityType);

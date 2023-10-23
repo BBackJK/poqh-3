@@ -15,16 +15,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//@Slf4j
 public class SQLContextImpl<T> implements SQLContext<T> {
 
     private static final Log LOGGER = LogFactory.getLog(SQLContext.class);
 
+    private final EntityManager entityManager;
     private final ObjectMapper om;
     private final Class<T> resultType;
-    private final EntityManager entityManager;
     private final List<Column> selectColumnList = new ArrayList<>();
     private final List<Predictor> whereList = new ArrayList<>();
+    private final List<Order> orderList = new ArrayList<>();
+    private final List<Column> groupByList = new ArrayList<>();
     private From from;
     private Select select;
     private boolean isJpql;
@@ -55,6 +56,32 @@ public class SQLContextImpl<T> implements SQLContext<T> {
             });
         }
 
+        if (hasOrder()) {
+            sb.append(" order by ");
+            int orderCount = this.orderList.size();
+            int n = 1;
+            for (int i=0; i<orderCount;i++,n++) {
+                boolean isLast = n == orderCount;
+                Order order = this.orderList.get(i);
+                sb.append(order.toQuery());
+                if ( !isLast ) sb.append(", ");
+            }
+            sb.append("\n");
+        }
+
+        if ( hasGroupBy() ) {
+            sb.append(" group by ");
+            int groupCount = this.groupByList.size();
+            int n = 1;
+            for (int i=0; i<groupCount;i++,n++) {
+                boolean isLast = n == groupCount;
+                Column column = this.groupByList.get(i);
+                sb.append(column.toQuery());
+                if ( !isLast ) sb.append(", ");
+            }
+            sb.append("\n");
+        }
+
         return sb.toString();
     }
 
@@ -74,6 +101,30 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     @Override
     public void SELECT(Column... columns) {
         this.selectColumnList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
+    }
+
+    @Override
+    public void WHERE(Predictor... predictors) {
+        this.whereList.addAll(Arrays.asList(predictors));
+    }
+
+    @Override
+    public Order ORDER(Column column) {
+        OrderImpl order = new OrderImpl(column);
+        this.orderList.add(order);
+        return order;
+    }
+
+    @Override
+    public void ORDER(Column... columns) {
+        for (Column c : columns) {
+            ORDER(c);
+        }
+    }
+
+    @Override
+    public void GROUP(Column... columns) {
+        this.groupByList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
     }
 
     @Override
@@ -114,16 +165,19 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         }
     }
 
-    @Override
-    public void WHERE(Predictor... predictors) {
-        this.whereList.addAll(Arrays.asList(predictors));
-    }
-
     private boolean hasTable() {
         return this.from != null;
     }
 
     private boolean hasWhere() {
         return !this.whereList.isEmpty();
+    }
+
+    private boolean hasOrder() {
+        return !this.orderList.isEmpty();
+    }
+
+    private boolean hasGroupBy() {
+        return !this.groupByList.isEmpty();
     }
 }

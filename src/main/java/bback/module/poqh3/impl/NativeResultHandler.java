@@ -4,6 +4,7 @@ import bback.module.poqh3.Column;
 import bback.module.poqh3.QueryResultHandler;
 import bback.module.poqh3.logger.Log;
 import bback.module.poqh3.logger.LogFactory;
+import bback.module.poqh3.utils.ListUtils;
 import bback.module.poqh3.utils.PersistenceUtils;
 import bback.module.poqh3.utils.Strings;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,25 +35,22 @@ public class NativeResultHandler<T> implements QueryResultHandler<T> {
 
     @Override
     public List<T> list(String query) {
-        List<Object[]> resultObjectList = this.getNativeQuery(query).getResultList();
         List<Map<String, Object>> listMap = new ArrayList<>();
+        List<Object[]> resultObjectList = this.getNativeQuery(query).getResultList();
         for (Object[] dataObject : resultObjectList) {
             Map<String, Object> dataMap = new HashMap<>();
             int columnCount = dataObject.length;
             for (int i=0; i<columnCount; i++) {
                 Object columnValue = dataObject[i];
-                Column column = null;
-                try {
-                    column = this.selectColumnList.get(i);
-                } catch (IndexOutOfBoundsException e) {
-                    continue;
+                Column column = ListUtils.getOnSafety(this.selectColumnList, i);
+                if ( column != null ) {
+                    dataMap.put(column.getAttr(), columnValue);
                 }
-                dataMap.put(column.getAttr(), columnValue);
             }
             listMap.add(dataMap);
         }
         try {
-            return this.om.convertValue(listMap, List.class);
+            return (List<T>) this.om.convertValue(listMap, List.class);
         } catch (IllegalArgumentException e) {
             LOGGER.error(e.getMessage());
             return Collections.emptyList();
@@ -63,7 +61,7 @@ public class NativeResultHandler<T> implements QueryResultHandler<T> {
     public Optional<T> detail(String query) {
         Object data = getNativeQuery(query).getSingleResult();
         if (data == null) {
-            return (Optional<T>) Optional.ofNullable(data);
+            return Optional.empty();
         }
         List<String> resultFieldNameList = PersistenceUtils.getColumnFields(resultType).stream().map(Field::getName).collect(Collectors.toList());
         if (data instanceof Object[]) {
@@ -72,18 +70,19 @@ public class NativeResultHandler<T> implements QueryResultHandler<T> {
             int columnCount = dataObject.length;
             for (int i=0; i<columnCount; i++) {
                 Object columnValue = dataObject[i];
-                Column column = null;
-                try {
-                    column = this.selectColumnList.get(i);
-                } catch (IndexOutOfBoundsException e) {
-                    continue;
-                }
+                Column column = ListUtils.getOnSafety(this.selectColumnList, i);
+                if ( column == null ) continue;
                 String camelColumnName = Strings.toCamel(column.getAttr());
                 if (resultFieldNameList.contains(camelColumnName)) {
                     dataMap.put(camelColumnName, columnValue);
                 }
             }
-            return Optional.of(this.om.convertValue(dataMap, resultType));
+            try {
+                return Optional.of(this.om.convertValue(dataMap, resultType));
+            } catch (IllegalArgumentException e) {
+                LOGGER.error(e.getMessage());
+                return Optional.empty();
+            }
         }
         return Optional.of((T) data);
     }

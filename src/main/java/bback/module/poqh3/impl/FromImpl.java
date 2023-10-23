@@ -91,5 +91,9 @@ class FromImpl implements From {
         if (this.isJpql() && !joinTable.isJpql()) {
             throw new DMLValidationException("JPQL Table is only use JPQL Table.");
         }
+
+        if (!this.isJpql() && joinTable.isJpql()) {
+            throw new DMLValidationException("Native Table is only use Native Table.");
+        }
     }
 }
