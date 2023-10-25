@@ -27,6 +27,11 @@ class NativeColumn extends AbstractPredictorColumn {
     }
 
     @Override
+    public String getAlias() {
+        return alias;
+    }
+
+    @Override
     public boolean hasAlias() {
         return this.alias != null && !this.alias.isEmpty();
     }

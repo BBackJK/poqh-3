@@ -165,6 +165,21 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         }
     }
 
+    @Override
+    public Class<?> getRootEntityType() {
+        return this.from.getRoot().getEntityType();
+    }
+
+    @Override
+    public List<Column> getSelectColumnList() {
+        return this.selectColumnList;
+    }
+
+    @Override
+    public boolean isJpql() {
+        return this.isJpql;
+    }
+
     private boolean hasTable() {
         return this.from != null;
     }

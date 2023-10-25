@@ -20,4 +20,10 @@ public interface SQLContext<T> extends SQL {
     List<T> toResultList();
 
     Optional<T> toResult();
+
+    Class<?> getRootEntityType();
+
+    List<Column> getSelectColumnList();
+
+    boolean isJpql();
 }

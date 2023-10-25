@@ -8,6 +8,7 @@ import java.util.List;
 public interface Column extends Native, JPQL {
 
     String getAttr();
+    String getAlias();
     boolean hasAlias();
 
     Predictor EQ(Column column);

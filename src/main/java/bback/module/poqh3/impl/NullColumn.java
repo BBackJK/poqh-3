@@ -19,6 +19,11 @@ class NullColumn extends AbstractPredictorColumn {
     }
 
     @Override
+    public String getAlias() {
+        return constructorParameterType.getName();
+    }
+
+    @Override
     public boolean hasAlias() {
         return false;
     }
