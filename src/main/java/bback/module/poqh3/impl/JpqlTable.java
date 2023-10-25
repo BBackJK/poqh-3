@@ -45,11 +45,7 @@ public class JpqlTable implements Table {
 
     @Override
     public Column COLUMN(String field, String alias) {
-        Field foreignField = this.getForeignFieldBySelectName(field);
-        if ( foreignField != null ) {
-            field = foreignField.getName();
-        }
-        return new JpqlColumn(this, field, alias);
+        return new JpqlColumn(this, this.getForeignFieldNameBySelectName(field), alias);
     }
 
     @Override
@@ -93,21 +89,20 @@ public class JpqlTable implements Table {
         return true;
     }
 
-
-    private Field getForeignFieldBySelectName(String selectFieldName) {
+    private String getForeignFieldNameBySelectName(String selectFieldName) {
         String inputCamelName = Strings.toCamel(selectFieldName);
         String inputUnderName = Strings.camel2Under(selectFieldName);
 
         for (Field f : this.foreignFieldList) {
             // CamelCase field 문자열 이 foreignField 명과 같을 경우, foreignField 라고 할 수 있다.
             if (f.getName().equals(inputCamelName)) {
-                return f;
+                return inputCamelName;
             }
             // JoinColumn 이 있고, name 이 지정되어 있으면, 그 name 은 under bar case 이고, 이 name 과 inputUnderName 이 같을 시 foreignField 로 간주.
             JoinColumn joinColumn = f.getAnnotation(JoinColumn.class);
             if ( joinColumn != null && !(joinColumn.name().isEmpty()) ) {
                 if ( joinColumn.name().equals(inputUnderName) ) {
-                    return f;
+                    return inputCamelName;
                 }
             }
 
@@ -115,20 +110,21 @@ public class JpqlTable implements Table {
             // 해당 Foreign 후보자 타입의 Primary 필드를 조회하여 Foreign key 를 판단한다.
             List<Field> primaryListOfForeignField = PersistenceUtils.getPrimaryFieldList(f.getType());
             for (Field foreignPKField : primaryListOfForeignField) {
-                String underRootIdUnderName = String.format("%s_%s", Strings.camel2Under(f.getName()), Strings.camel2Under(foreignPKField.getName()));
+                String fieldUnderName = Strings.camel2Under(f.getName());
+                String underRootIdUnderName = String.format("%s_%s", fieldUnderName, Strings.camel2Under(foreignPKField.getName()));
                 if (inputUnderName.equals(underRootIdUnderName)) {
-                    return f;
+                    return String.format("%s.%s", f.getName(), foreignPKField.getName());
                 }
 
                 jakarta.persistence.Column column = foreignPKField.getAnnotation(jakarta.persistence.Column.class);
                 if (column != null && !column.name().isEmpty()) {
-                    underRootIdUnderName = String.format("%s_%s", Strings.camel2Under(f.getName()), Strings.camel2Under(column.name()));
+                    underRootIdUnderName = String.format("%s_%s",fieldUnderName, Strings.camel2Under(column.name()));
                     if (inputUnderName.equals(underRootIdUnderName)) {
-                        return f;
+                        return String.format("%s.%s", f.getName(), foreignPKField.getName());
                     }
                 }
             }
         }
-        return null;
+        return inputCamelName;
     }
 }

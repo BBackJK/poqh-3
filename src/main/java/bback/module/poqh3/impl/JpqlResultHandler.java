@@ -2,6 +2,7 @@ package bback.module.poqh3.impl;
 
 import bback.module.poqh3.QueryResultHandler;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 
 
@@ -27,9 +28,12 @@ public class JpqlResultHandler<T> implements QueryResultHandler<T> {
 
     @Override
     public Optional<T> detail(String query) {
-        return Optional.ofNullable(
-                this.getTypedQuery(query).getSingleResult()
-        );
+        try {
+            return Optional.of(this.getTypedQuery(query).getSingleResult());
+        } catch (PersistenceException e) {
+            // jakarta.persistence.NoResultException: No result found for query
+            return Optional.empty();
+        }
     }
 
     private TypedQuery<T> getTypedQuery(String query) {

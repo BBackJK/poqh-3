@@ -22,6 +22,7 @@ public interface Column extends Native, JPQL {
     Predictor LIKE(Column column, LikeType likeType);
 
     Predictor NULL();
+
     Predictor NOT_NULL();
 
     default Predictor LIKE(Column column) {
