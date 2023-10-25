@@ -8,13 +8,13 @@ public enum LikeType {
             return '%' + pattern + '%';
         }
     },
-    START {
+    END {
         @Override
         public String toQuery(String pattern) {
             return '%' + pattern;
         }
     },
-    END {
+    START {
         @Override
         public String toQuery(String pattern) {
             return pattern + '%';
