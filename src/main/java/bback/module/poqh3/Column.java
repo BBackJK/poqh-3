@@ -9,6 +9,14 @@ public interface Column extends Native, JPQL {
 
     Predictor EQ(Column column);
 
+    Predictor GT(Column column);
+
+    Predictor GE(Column column);
+
+    Predictor LT(Column column);
+
+    Predictor LE(Column column);
+
     Predictor IN(Column... columns);
 
     Predictor LIKE(Column column, LikeType likeType);

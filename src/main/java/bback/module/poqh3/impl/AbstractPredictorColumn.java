@@ -22,6 +22,26 @@ abstract class AbstractPredictorColumn implements Column {
     }
 
     @Override
+    public Predictor GT(Column column) {
+        return new Greaters(this, column);
+    }
+
+    @Override
+    public Predictor GE(Column column) {
+        return new Greaters(this, column, true);
+    }
+
+    @Override
+    public Predictor LT(Column column) {
+        return new Lesses(this, column);
+    }
+
+    @Override
+    public Predictor LE(Column column) {
+        return new Lesses(this, column, true);
+    }
+
+    @Override
     public Predictor IN(Column... columns) {
         return new Ins(this, Arrays.asList(columns));
     }
