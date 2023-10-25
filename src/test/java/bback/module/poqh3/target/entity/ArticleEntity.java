@@ -1,4 +1,4 @@
-package bback.module.poqh3.entity;
+package bback.module.poqh3.target.entity;
 
 import jakarta.persistence.*;
 
@@ -56,5 +56,15 @@ public class ArticleEntity {
         this.title = title;
         this.contents = contents;
         this.member = member;
+    }
+
+    @Override
+    public String toString() {
+        return "ArticleEntity{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", contents='" + contents + '\'' +
+                ", member=" + member +
+                '}';
     }
 }

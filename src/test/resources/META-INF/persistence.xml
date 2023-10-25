@@ -4,7 +4,8 @@
     <persistence-unit name="test-persistence">
 
         <!-- 엔티티 class -->
-        <class>bback.module.poqh3.entity.MemberEntity</class>
+        <class>bback.module.poqh3.target.entity.MemberEntity</class>
+        <class>bback.module.poqh3.target.entity.ArticleEntity</class>
 
         <properties>
             <!-- 필수 속성 -->

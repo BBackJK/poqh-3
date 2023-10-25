@@ -1,4 +1,4 @@
-package bback.module.poqh3.domain;
+package bback.module.poqh3.target.domain;
 
 public class Member {
 

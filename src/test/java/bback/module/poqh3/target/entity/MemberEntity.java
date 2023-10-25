@@ -1,4 +1,4 @@
-package bback.module.poqh3.entity;
+package bback.module.poqh3.target.entity;
 
 import jakarta.persistence.*;
 
