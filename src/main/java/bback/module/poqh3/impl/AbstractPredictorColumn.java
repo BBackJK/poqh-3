@@ -52,12 +52,12 @@ abstract class AbstractPredictorColumn implements Column {
     }
 
     @Override
-    public Predictor NULL() {
+    public Predictor IS_NULL() {
         return new Nulls(this, false);
     }
 
     @Override
-    public Predictor NOT_NULL() {
+    public Predictor IS_NOT_NULL() {
         return new Nulls(this, true);
     }
 }
