@@ -23,16 +23,16 @@ class JPQLJoinTest extends EntityManagerProvider {
             saveDummyMember(em);
             saveDummyArticle(em);
 
-            Table MEMBER = JPQL.TABLE(MemberEntity.class);
-            Table ARTICLE = JPQL.TABLE(ArticleEntity.class);
+            Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
+            Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
 
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em, ArticleEntity.class);
+            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
             articleContext.SELECT(ARTICLE.ALL());
             articleContext.FROM(ARTICLE)
                     .JOIN(MEMBER);
 
-            List<ArticleEntity> articles = articleContext.toResultList();
+            List<ArticleEntity> articles = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(6, articles.size());
             for (ArticleEntity ae : articles) {
                 Assertions.assertNotNull(ae.getMember());
@@ -47,17 +47,17 @@ class JPQLJoinTest extends EntityManagerProvider {
             saveDummyMember(em);
             saveDummyArticle(em);
 
-            Table MEMBER = JPQL.TABLE(MemberEntity.class);
-            Table ARTICLE = JPQL.TABLE(ArticleEntity.class);
+            Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
+            Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
 
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em, ArticleEntity.class);
+            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
             articleContext.SELECT(ARTICLE.ALL());
             articleContext.FROM(ARTICLE)
                     .JOIN(MEMBER)
                     .ON(MEMBER.COLUMN("id").EQ(ARTICLE.COLUMN("member_id")));
 
-            List<ArticleEntity> articles = articleContext.toResultList();
+            List<ArticleEntity> articles = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(6, articles.size());
             for (ArticleEntity ae : articles) {
                 Assertions.assertNotNull(ae.getMember());

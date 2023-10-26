@@ -3,10 +3,10 @@ package bback.module.poqh3.impl;
 import bback.module.poqh3.From;
 import bback.module.poqh3.Table;
 
-class InnerJoin extends AbstractJoin {
+class InnerJoin<T, R> extends AbstractJoin<T, R> {
 
 
-    public InnerJoin(From from, Table joinTable) {
+    public InnerJoin(From<T> from, Table<R> joinTable) {
         super(from, joinTable);
     }
 

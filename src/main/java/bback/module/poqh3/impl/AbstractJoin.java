@@ -11,13 +11,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-abstract class AbstractJoin implements Join {
+abstract class AbstractJoin<T,R> implements Join<T,R> {
 
-    protected final From from;
-    protected final Table joinTable;
+    protected final From<T> from;
+    protected final Table<R> joinTable;
     protected final List<Predictor> onList = new ArrayList<>();
 
-    protected AbstractJoin(From from, Table joinTable) {
+    protected AbstractJoin(From<T> from, Table<R> joinTable) {
         this.from = from;
         this.joinTable = joinTable;
     }
@@ -25,13 +25,13 @@ abstract class AbstractJoin implements Join {
     protected abstract String getExpression();
 
     @Override
-    public From ON(Predictor... predictors) {
+    public From<T> ON(Predictor... predictors) {
         this.onList.addAll(Arrays.stream(predictors).collect(Collectors.toList()));
         return this.from;
     }
 
     @Override
-    public Table getJoinTable() {
+    public Table<R> getJoinTable() {
         return this.joinTable;
     }
 

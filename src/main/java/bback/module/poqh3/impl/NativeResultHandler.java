@@ -15,16 +15,16 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NativeResultHandler<T> implements QueryResultHandler<T> {
+public class NativeResultHandler<R> implements QueryResultHandler<R> {
 
     private static final Log LOGGER = LogFactory.getLog(QueryResultHandler.class);
 
     private final EntityManager entityManager;
-    private final Class<T> resultType;
+    private final Class<R> resultType;
     private final ObjectMapper om;
     private final List<Column> selectColumnList;
 
-    public NativeResultHandler(EntityManager em, Class<T> resultType, ObjectMapper om, List<Column> selectColumnList) {
+    public NativeResultHandler(EntityManager em, Class<R> resultType, ObjectMapper om, List<Column> selectColumnList) {
         this.entityManager = em;
         this.resultType = resultType;
         this.om = om;
@@ -34,7 +34,7 @@ public class NativeResultHandler<T> implements QueryResultHandler<T> {
 
 
     @Override
-    public List<T> list(String query) {
+    public List<R> list(String query) {
         List<Map<String, Object>> listMap = new ArrayList<>();
         List<Object[]> resultObjectList = this.getNativeQuery(query).getResultList();
         for (Object[] dataObject : resultObjectList) {
@@ -50,7 +50,7 @@ public class NativeResultHandler<T> implements QueryResultHandler<T> {
             listMap.add(dataMap);
         }
         try {
-            return (List<T>) this.om.convertValue(listMap, List.class);
+            return (List<R>) this.om.convertValue(listMap, List.class);
         } catch (IllegalArgumentException e) {
             LOGGER.error(e.getMessage());
             return Collections.emptyList();
@@ -58,7 +58,7 @@ public class NativeResultHandler<T> implements QueryResultHandler<T> {
     }
 
     @Override
-    public Optional<T> detail(String query) {
+    public Optional<R> detail(String query) {
         Object data = getNativeQuery(query).getSingleResult();
         if (data == null) {
             return Optional.empty();
@@ -84,7 +84,7 @@ public class NativeResultHandler<T> implements QueryResultHandler<T> {
                 return Optional.empty();
             }
         }
-        return Optional.of((T) data);
+        return Optional.of((R) data);
     }
 
     private Query getNativeQuery(String query) {

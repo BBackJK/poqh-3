@@ -3,9 +3,9 @@ package bback.module.poqh3.impl;
 import bback.module.poqh3.From;
 import bback.module.poqh3.Table;
 
-class RightJoin extends AbstractJoin {
+class RightJoin<T, R> extends AbstractJoin<T, R> {
 
-    public RightJoin(From from, Table joinTable) {
+    public RightJoin(From<T> from, Table<R> joinTable) {
         super(from, joinTable);
     }
 

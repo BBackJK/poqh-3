@@ -5,15 +5,19 @@ import bback.module.poqh3.impl.NativeTable;
 
 public interface Native extends SQL {
 
-    static Table TABLE(Class<?> clazz) {
+    static <T> Table<T> TABLE(Class<T> clazz) {
         return TABLE(clazz, null);
     }
 
-    static Table TABLE(Class<?> clazz, String alias) {
+    static <T> Table<T> TABLE(Class<T> clazz, String alias) {
         return new NativeTable(clazz, alias);
     }
 
-    static Table TABLE(SQLContext<?> context, String alias) {
-        return new ContextTable(context, alias);
+//    static <T> Table<T> TABLE(SQLContext<T> context, String alias) {
+//        return new ContextTable<>(context, alias);
+//    }
+
+    static <T, E extends SQLContext<T>> Table<E> TABLE(E context, String alias) {
+        return new ContextTable<>(context, alias);
     }
 }

@@ -24,12 +24,12 @@ public final class SQLContextFactory {
         throw new IllegalAccessException();
     }
 
-    public static <T> SQLContext<T> getContext(EntityManager entityManager, Class<T> resultType) {
-        return new SQLContextImpl<>(entityManager, resultType, om);
+    public static <T> SQLContext<T> getContext(EntityManager entityManager) {
+        return new SQLContextImpl<>(entityManager, om);
     }
 
 
-    static class IgnoreAnnotationIntrospector extends JacksonAnnotationIntrospector {
+    private static class IgnoreAnnotationIntrospector extends JacksonAnnotationIntrospector {
         @Override
         protected <A extends Annotation> A _findAnnotation(Annotated annotated, Class<A> annoClass) {
             if (annoClass == JsonProperty.class) {

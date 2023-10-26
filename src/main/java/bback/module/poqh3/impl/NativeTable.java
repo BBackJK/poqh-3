@@ -7,13 +7,13 @@ import bback.module.poqh3.utils.PersistenceUtils;
 
 import java.util.List;
 
-public class NativeTable implements Table {
+public class NativeTable<T> implements Table<T> {
 
-    private final Class<?> entityType;
+    private final Class<T> entityType;
     private final String tableName;
     private String alias;
 
-    public NativeTable(Class<?> entityType, String alias) {
+    public NativeTable(Class<T> entityType, String alias) {
         if (!PersistenceUtils.isEntityClass(entityType)) {
             throw new TableIsOnlyAcceptEntityException();
         }
@@ -39,7 +39,7 @@ public class NativeTable implements Table {
 
     @Override
     public Column COLUMN(String field, String alias) {
-        return new NativeColumn(this, field, alias);
+        return new NativeColumn<>(this, field, alias);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class NativeTable implements Table {
     }
 
     @Override
-    public Class<?> getEntityType() {
+    public Class<T> getEntityType() {
         return this.entityType;
     }
 

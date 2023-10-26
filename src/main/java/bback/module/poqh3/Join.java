@@ -1,8 +1,8 @@
 package bback.module.poqh3;
 
-public interface Join extends SQL {
+public interface Join<T,R> extends SQL {
 
-    From ON(Predictor... predictors);
+    From<T> ON(Predictor... predictors);
 
-    Table getJoinTable();
+    Table<R> getJoinTable();
 }

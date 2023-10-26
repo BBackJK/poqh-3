@@ -1,24 +1,27 @@
 package bback.module;
 
+import bback.module.poqh3.JPQL;
+import bback.module.poqh3.SQLContext;
+import bback.module.poqh3.SQLContextFactory;
+import bback.module.poqh3.Table;
+import bback.module.poqh3.target.entity.MemberEntity;
 import bback.module.provider.EntityManagerProvider;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class MainTest extends EntityManagerProvider {
 
 
-//    @Test
-//    @DisplayName("MemberEntity 저장 테스트")
-//    void MemberEntity_저장_테스트() {
-//        executeQuery((em) -> {
-//            MemberEntity temp1 = new MemberEntity("test1","테스터1");
-//            em.persist(temp1);
-//            em.flush();
-//        });
-//
-//
-//        executeQuery((em) -> {
-//            MemberEntity foundTemp = em.find(MemberEntity.class, "test1");
-//            Assertions.assertNotNull(foundTemp);
-//            Assertions.assertEquals("test1", foundTemp.getId());
-//        });
-//    }
+    @Test
+    @DisplayName("method_chaining_test")
+    void method_chaining_test() {
+        executeQuery(em -> {
+            SQLContext context = SQLContextFactory.getContext(em);
+            Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
+
+//            context.select()
+//                    .from(MEMBER)
+//            ;
+        });
+    }
 }

@@ -8,12 +8,12 @@ import bback.module.poqh3.utils.Objects;
 
 import java.util.List;
 
-public class ContextTable implements Table {
+public class ContextTable<T extends SQLContext<?>> implements Table<T> {
 
-    private final SQLContext<?> context;
+    private final T context;
     private String alias;
 
-    public ContextTable(SQLContext<?> context, String alias) {
+    public ContextTable(T context, String alias) {
         if ( Objects.isEmpty( alias ) ) {
             throw new DMLValidationException(" Context Table Is Required Alias. ");
         }
@@ -53,7 +53,7 @@ public class ContextTable implements Table {
 
     @Override
     public Column COLUMN(String field, String alias) {
-        return new NativeColumn(this, field, alias);
+        return new NativeColumn<>(this, field, alias);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class ContextTable implements Table {
         Column[] columns = new Column[columnCount];
         for (int i = 0; i < columnCount; i++) {
             Column column = columnList.get(i);
-            columns[i] = new NativeColumn(this, column.getAttr(), column.getAlias());
+            columns[i] = new NativeColumn<>(this, column.getAttr(), column.getAlias());
         }
 
         return columns;
@@ -90,12 +90,12 @@ public class ContextTable implements Table {
     }
 
     @Override
-    public Class<?> getEntityType() {
-        return this.context.getRootEntityType();
+    public Class<T> getEntityType() {
+        return (Class<T>) this.context.getClass();
     }
 
     @Override
     public boolean isJpql() {
-        return context.isJpql();
+        return false;
     }
 }

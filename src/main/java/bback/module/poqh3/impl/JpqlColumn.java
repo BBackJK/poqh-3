@@ -3,13 +3,13 @@ package bback.module.poqh3.impl;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.utils.Strings;
 
-class JpqlColumn extends AbstractPredictorColumn {
+class JpqlColumn<T> extends AbstractPredictorColumn {
 
-    private final Table table;
+    private final Table<T> table;
     private final String field;
     private final String alias;
 
-    public JpqlColumn(Table table, String field, String alias) {
+    public JpqlColumn(Table<T> table, String field, String alias) {
         this.table = table;
         this.field = field;
         this.alias = alias;

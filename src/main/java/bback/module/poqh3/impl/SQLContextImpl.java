@@ -21,27 +21,21 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
     private final EntityManager entityManager;
     private final ObjectMapper om;
-    private final Class<T> resultType;
     private final List<Column> selectColumnList = new ArrayList<>();
     private final List<Predictor> whereList = new ArrayList<>();
     private final List<Order> orderList = new ArrayList<>();
     private final List<Column> groupByList = new ArrayList<>();
-    private From from;
-    private Select select;
+    private From<T> from;
     private boolean isJpql;
 
-    public SQLContextImpl(EntityManager entityManager, Class<T> resultType, ObjectMapper om) {
+    public SQLContextImpl(EntityManager entityManager, ObjectMapper om) {
         this.entityManager = entityManager;
-        this.resultType = resultType;
         this.om = om;
     }
 
     @Override
     public String toQuery() {
         StringBuilder sb = new StringBuilder();
-        this.select.setSelectColumnList(this.selectColumnList);
-        sb.append(this.select.toQuery());
-        sb.append("\n");
 
         if (hasTable()) {
             sb.append(from.toQuery());
@@ -88,13 +82,12 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
 
     @Override
-    public From FROM(Table table) {
+    public From<T> FROM(Table<T> table) {
         if (!table.hasAlias()) {
             table.AS(1);
         }
         this.isJpql = table.isJpql();
-        this.select = table.isJpql() ? new JpqlSelect(this.resultType) : new NativeSelect();
-        this.from = new FromImpl(table);
+        this.from = new FromImpl<>(table);
         return this.from;
     }
 
@@ -127,13 +120,23 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         this.groupByList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
     }
 
-    @Override
-    public List<T> toResultList() throws PersistenceException {
-        String query = this.toQuery();
+//    @Override
+//    public SQLContext select(Column... columns) {
+//        this.selectColumnList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
+//        return this;
+//    }
+//
+//    @Override
+//    public SQLContext from(Table<?> table) {
+//        return null;
+//    }
 
-        QueryResultHandler<T> resultHandler = this.isJpql
-                ? new JpqlResultHandler<>(this.entityManager, this.resultType)
-                : new NativeResultHandler<>(this.entityManager, this.resultType, this.om, this.selectColumnList);
+    @Override
+    public <R> List<R> toResultList(Class<R> resultType) {
+        String query = this.getResultQuery(resultType);
+        QueryResultHandler<R> resultHandler = this.isJpql
+                ? new JpqlResultHandler<>(this.entityManager, resultType)
+                : new NativeResultHandler<>(this.entityManager, resultType, this.om, this.selectColumnList);
 
         try {
             return resultHandler.list(query);
@@ -147,12 +150,12 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     }
 
     @Override
-    public Optional<T> toResult() throws PersistenceException {
+    public <R> Optional<R> toResult(Class<R> resultType) {
         String query = this.toQuery();
 
-        QueryResultHandler<T> resultHandler = this.isJpql
-                ? new JpqlResultHandler<>(this.entityManager, this.resultType)
-                : new NativeResultHandler<>(this.entityManager, this.resultType, this.om, this.selectColumnList);
+        QueryResultHandler<R> resultHandler = this.isJpql
+                ? new JpqlResultHandler<>(this.entityManager, resultType)
+                : new NativeResultHandler<>(this.entityManager, resultType, this.om, this.selectColumnList);
 
         try {
             return resultHandler.detail(query);
@@ -166,7 +169,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     }
 
     @Override
-    public Class<?> getRootEntityType() {
+    public Class<T> getRootEntityType() {
         return this.from.getRoot().getEntityType();
     }
 
@@ -178,6 +181,15 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     @Override
     public boolean isJpql() {
         return this.isJpql;
+    }
+
+    private String getResultQuery(Class<?> resultType) {
+        StringBuilder sb = new StringBuilder();
+        Select select = this.isJpql() ? new JpqlSelect(resultType, this.selectColumnList) : new NativeSelect(this.selectColumnList);
+        sb.append(select.toQuery());
+        sb.append("\n");
+        sb.append(this.toQuery());
+        return sb.toString();
     }
 
     private boolean hasTable() {

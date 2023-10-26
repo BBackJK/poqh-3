@@ -3,15 +3,15 @@ package bback.module.poqh3;
 
 import jakarta.persistence.criteria.JoinType;
 
-public interface From extends Native, JPQL {
+public interface From<T> extends Native, JPQL {
 
-    Join JOIN(Table joinTable, JoinType joinType);
+    <R> Join<T,R> JOIN(Table<R> joinTable, JoinType joinType);
 
-    default Join JOIN(Table joinTable) {
+    default <R> Join<T,R> JOIN(Table<R> joinTable) {
         return JOIN(joinTable, JoinType.INNER);
     }
 
-    Table getRoot();
+    Table<T> getRoot();
 
     boolean isJpql();
 }

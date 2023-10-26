@@ -3,9 +3,9 @@ package bback.module.poqh3;
 import java.util.List;
 import java.util.Optional;
 
-public interface QueryResultHandler<T> {
+public interface QueryResultHandler<R> {
 
 
-    List<T> list(String query);
-    Optional<T> detail(String query);
+    List<R> list(String query);
+    Optional<R> detail(String query);
 }

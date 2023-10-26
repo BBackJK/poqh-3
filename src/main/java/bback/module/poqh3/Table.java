@@ -1,6 +1,6 @@
 package bback.module.poqh3;
 
-public interface Table extends JPQL, Native {
+public interface Table<T> extends JPQL, Native {
 
     void AS(String alias);
 
@@ -19,7 +19,7 @@ public interface Table extends JPQL, Native {
 
     String getAlias();
 
-    Class<?> getEntityType();
+    Class<T> getEntityType();
 
     boolean isJpql();
 

@@ -8,14 +8,14 @@ import bback.module.poqh3.utils.PersistenceUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class JpqlForeignTable implements Table {
+public class JpqlForeignTable<T, R> implements Table<R> {
 
-    private final Table root;
-    private final Class<?> foreignType;
+    private final Table<T> root;
+    private final Class<R> foreignType;
     private final Field relationField;
     private String alias;
 
-    public JpqlForeignTable(Table root, Class<?> foreignType, String alias) {
+    public JpqlForeignTable(Table<T> root, Class<R> foreignType, String alias) {
         this.root = root;
         this.foreignType = foreignType;
         this.alias = alias;
@@ -43,7 +43,7 @@ public class JpqlForeignTable implements Table {
 
     @Override
     public Column COLUMN(String field, String alias) {
-        return new JpqlColumn(this, field, alias);
+        return new JpqlColumn<>(this, field, alias);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class JpqlForeignTable implements Table {
     }
 
     @Override
-    public Class<?> getEntityType() {
+    public Class<R> getEntityType() {
         return this.foreignType;
     }
 

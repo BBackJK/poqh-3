@@ -5,11 +5,11 @@ import bback.module.poqh3.impl.JpqlTable;
 
 public interface JPQL extends SQL {
 
-    static Table TABLE(Class<?> entityType) {
+    static <T> Table<T> TABLE(Class<T> entityType) {
         return TABLE(entityType, null);
     }
 
-    static Table TABLE(Class<?> entityType, String alias) {
-        return new JpqlTable(entityType, alias);
+    static <T> Table<T> TABLE(Class<T> entityType, String alias) {
+        return new JpqlTable<>(entityType, alias);
     }
 }

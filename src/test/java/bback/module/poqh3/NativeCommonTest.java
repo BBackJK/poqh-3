@@ -15,15 +15,15 @@ class NativeCommonTest extends EntityManagerProvider {
     void IS_TEST() {
         executeQuery(entityManager -> {
 
-            Table ARTICLE = Native.TABLE(ArticleEntity.class);
-            SQLContext<?> ctx = SQLContextFactory.getContext(entityManager, null);
+            Table<ArticleEntity> ARTICLE = Native.TABLE(ArticleEntity.class);
+            SQLContext<ArticleEntity> ctx = SQLContextFactory.getContext(entityManager);
             ctx.SELECT(ARTICLE.ALL());
             ctx.FROM(ARTICLE);
             ctx.ORDER(ARTICLE.COLUMN("id")).DESC();
 
-            SQLContext<ArticleEntity> wrapperCtx = SQLContextFactory.getContext(entityManager, ArticleEntity.class);
-            Table ARTICLE_CONTEXT_TABLE = Native.TABLE(ctx, "a1");
-            Table MEMBER = Native.TABLE(MemberEntity.class);
+            SQLContext<SQLContext<ArticleEntity>> wrapperCtx = SQLContextFactory.getContext(entityManager);
+            Table<SQLContext<ArticleEntity>> ARTICLE_CONTEXT_TABLE = Native.TABLE(ctx, "a1");
+            Table<MemberEntity> MEMBER = Native.TABLE(MemberEntity.class);
 
             wrapperCtx.SELECT(
                     ARTICLE_CONTEXT_TABLE.COLUMNS("title", "contents")

@@ -10,15 +10,15 @@ import jakarta.persistence.JoinColumn;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class JpqlTable implements Table {
+public class JpqlTable<T> implements Table<T> {
 
-    private final Class<?> entityType;
+    private final Class<T> entityType;
 
     private final List<Field> foreignFieldList;
 
     private String alias;
 
-    public JpqlTable(Class<?> entityType, String alias) {
+    public JpqlTable(Class<T> entityType, String alias) {
         if (!PersistenceUtils.isEntityClass(entityType)) {
             throw new TableIsOnlyAcceptEntityException();
         }
@@ -45,7 +45,7 @@ public class JpqlTable implements Table {
 
     @Override
     public Column COLUMN(String field, String alias) {
-        return new JpqlColumn(this, this.getForeignFieldNameBySelectName(field), alias);
+        return new JpqlColumn<>(this, this.getForeignFieldNameBySelectName(field), alias);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class JpqlTable implements Table {
     }
 
     @Override
-    public Class<?> getEntityType() {
+    public Class<T> getEntityType() {
         return this.entityType;
     }
 
@@ -100,10 +100,9 @@ public class JpqlTable implements Table {
             }
             // JoinColumn 이 있고, name 이 지정되어 있으면, 그 name 은 under bar case 이고, 이 name 과 inputUnderName 이 같을 시 foreignField 로 간주.
             JoinColumn joinColumn = f.getAnnotation(JoinColumn.class);
-            if ( joinColumn != null && !(joinColumn.name().isEmpty()) ) {
-                if ( joinColumn.name().equals(inputUnderName) ) {
+            if ( joinColumn != null && !(joinColumn.name().isEmpty()) && ( joinColumn.name().equals(inputUnderName) )) {
                     return inputCamelName;
-                }
+
             }
 
             // 문자열도 같지 않고, JoinColumn 도 같지 않을 경우

@@ -4,13 +4,13 @@ package bback.module.poqh3.impl;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.utils.Strings;
 
-class NativeColumn extends AbstractPredictorColumn {
+class NativeColumn<T> extends AbstractPredictorColumn {
 
-    private final Table table;
+    private final Table<T> table;
     private final String field;
-    private String alias;
+    private final String alias;
 
-    public NativeColumn(Table table, String field, String alias) {
+    public NativeColumn(Table<T> table, String field, String alias) {
         this.table = table;
         this.field = field;
         this.alias = alias;

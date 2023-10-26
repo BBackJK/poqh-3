@@ -11,12 +11,12 @@ import jakarta.persistence.criteria.JoinType;
 import java.util.ArrayList;
 import java.util.List;
 
-class FromImpl implements From {
+class FromImpl<T> implements From<T> {
 
-    private final Table root;
-    private final List<Join> joinList = new ArrayList<>();
+    private final Table<T> root;
+    private final List<Join<T, ?>> joinList = new ArrayList<>();
 
-    public FromImpl(Table root) {
+    public FromImpl(Table<T> root) {
         this.root = root;
     }
 
@@ -43,7 +43,7 @@ class FromImpl implements From {
     }
 
     @Override
-    public Join JOIN(Table joinTable, JoinType joinType) {
+    public <R> Join<T,R> JOIN(Table<R> joinTable, JoinType joinType) {
         this.validationTable(joinTable, joinType);
 
         if ( !joinTable.hasAlias() ) {
@@ -54,20 +54,20 @@ class FromImpl implements From {
         if (this.isJpql()) {
             boolean isRelation = PersistenceUtils.isRelationEntity(this.root.getEntityType(), joinTable.getEntityType());
             if (isRelation) {
-                joinTable = new JpqlForeignTable(this.root, joinTable.getEntityType(), joinTable.getAlias());
+                joinTable = new JpqlForeignTable<>(this.root, joinTable.getEntityType(), joinTable.getAlias());
             }
         }
 
-        Join join = null;
+        Join<T,R> join = null;
         switch (joinType) {
             case LEFT:
-                join = new LeftJoin(this, joinTable);
+                join = new LeftJoin<>(this, joinTable);
                 break;
             case RIGHT:
-                join = new RightJoin(this, joinTable);
+                join = new RightJoin<>(this, joinTable);
                 break;
             default:
-                join = new InnerJoin(this, joinTable);
+                join = new InnerJoin<>(this, joinTable);
                 break;
         }
         this.joinList.add(join);
@@ -75,7 +75,7 @@ class FromImpl implements From {
     }
 
     @Override
-    public Table getRoot() {
+    public Table<T> getRoot() {
         return this.root;
     }
 
@@ -84,7 +84,7 @@ class FromImpl implements From {
         return this.root.isJpql();
     }
 
-    private void validationTable(Table joinTable, JoinType joinType) {
+    private void validationTable(Table<?> joinTable, JoinType joinType) {
         if ( Objects.orEmpty( joinTable, joinType ) ) {
             throw new DMLValidationException("join table or join type is null.");
         }

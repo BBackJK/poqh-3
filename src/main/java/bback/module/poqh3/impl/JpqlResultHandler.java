@@ -8,12 +8,12 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
-public class JpqlResultHandler<T> implements QueryResultHandler<T> {
+public class JpqlResultHandler<R> implements QueryResultHandler<R> {
 
     private final EntityManager entityManager;
-    private final Class<T> resultType;
+    private final Class<R> resultType;
 
-    public JpqlResultHandler(EntityManager em, Class<T> resultType) {
+    public JpqlResultHandler(EntityManager em, Class<R> resultType) {
         this.entityManager = em;
         this.resultType = resultType;
     }
@@ -21,12 +21,12 @@ public class JpqlResultHandler<T> implements QueryResultHandler<T> {
 
 
     @Override
-    public List<T> list(String query) {
+    public List<R> list(String query) {
         return this.getTypedQuery(query).getResultList();
     }
 
     @Override
-    public Optional<T> detail(String query) {
+    public Optional<R> detail(String query) {
         try {
             return Optional.of(this.getTypedQuery(query).getSingleResult());
         } catch (NoResultException e) {
@@ -35,7 +35,7 @@ public class JpqlResultHandler<T> implements QueryResultHandler<T> {
         }
     }
 
-    private TypedQuery<T> getTypedQuery(String query) {
+    private TypedQuery<R> getTypedQuery(String query) {
         return this.entityManager.createQuery(query, this.resultType);
     }
 }
