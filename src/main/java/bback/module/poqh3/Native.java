@@ -13,11 +13,7 @@ public interface Native extends SQL {
         return new NativeTable(clazz, alias);
     }
 
-//    static <T> Table<T> TABLE(SQLContext<T> context, String alias) {
-//        return new ContextTable<>(context, alias);
-//    }
-
-    static <T, E extends SQLContext<T>> Table<E> TABLE(E context, String alias) {
-        return new ContextTable<>(context, alias);
+    static <T, E extends SQLContext<T>> Table<E> TABLE(E context) {
+        return new ContextTable<>(context, null);
     }
 }

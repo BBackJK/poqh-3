@@ -7,6 +7,7 @@ import bback.module.poqh3.logger.LogFactory;
 import bback.module.poqh3.utils.ListUtils;
 import bback.module.poqh3.utils.PersistenceUtils;
 import bback.module.poqh3.utils.Strings;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -43,14 +44,16 @@ public class NativeResultHandler<R> implements QueryResultHandler<R> {
             for (int i=0; i<columnCount; i++) {
                 Object columnValue = dataObject[i];
                 Column column = ListUtils.getOnSafety(this.selectColumnList, i);
-                if ( column != null ) {
-                    dataMap.put(column.getAttr(), columnValue);
-                }
+                if ( column == null ) continue;
+
+                String camelColumnName = Strings.toCamel(column.getAttr());
+                dataMap.put(camelColumnName, columnValue);
             }
             listMap.add(dataMap);
         }
         try {
-            return (List<R>) this.om.convertValue(listMap, List.class);
+            JavaType javaType = this.om.getTypeFactory().constructParametricType(List.class, resultType);
+            return this.om.convertValue(listMap, javaType);
         } catch (IllegalArgumentException e) {
             LOGGER.error(e.getMessage());
             return Collections.emptyList();
@@ -77,10 +80,12 @@ public class NativeResultHandler<R> implements QueryResultHandler<R> {
                     dataMap.put(camelColumnName, columnValue);
                 }
             }
+
             try {
-                return Optional.of(this.om.convertValue(dataMap, resultType));
+                R result = this.om.convertValue(dataMap, resultType);
+                return Optional.of(result);
             } catch (IllegalArgumentException e) {
-                LOGGER.error(e.getMessage());
+                LOGGER.warn(e.getMessage());
                 return Optional.empty();
             }
         }

@@ -32,9 +32,9 @@ class FromImpl<T> implements From<T> {
         sb.append(this.root.toQuery());
         sb.append(" ");
         sb.append(this.root.getAlias());
+        sb.append("\n");
 
         if (!this.joinList.isEmpty()) {
-            sb.append("\n");
             this.joinList.forEach(j -> {
                 sb.append(j.toQuery());
                 sb.append("\n");

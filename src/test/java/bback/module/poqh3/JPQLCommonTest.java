@@ -142,11 +142,12 @@ class JPQLCommonTest extends EntityManagerProvider {
             Assertions.assertThrowsExactly(
                     RuntimeException.class
                     , () -> {
-                        MemberEntity member = SQLContextFactory.<MemberEntity>getContext(em)
+                        SQLContext<MemberEntity> memberContext = SQLContextFactory.<MemberEntity>getContext(em)
                                 .select(MEMBER.all())
                                 .from(MEMBER)
-                                .where(MEMBER.col("id").eq(Column.VALUE("test5")))
-                                .toResult(MemberEntity.class).orElseThrow(() -> new RuntimeException("없습니다."));
+                                .where(MEMBER.col("id").eq(Column.VALUE("test5")));
+
+                        memberContext.toResult(MemberEntity.class).orElseThrow(() -> new RuntimeException("없습니다."));
                     }
             );
         });
@@ -316,7 +317,7 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
+//            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
 //            articleContext.SELECT(ARTICLE.ALL());
 //            articleContext.FROM(ARTICLE);

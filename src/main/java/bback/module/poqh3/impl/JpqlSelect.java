@@ -2,6 +2,7 @@ package bback.module.poqh3.impl;
 
 import bback.module.poqh3.Column;
 import bback.module.poqh3.Select;
+import bback.module.poqh3.exceptions.DMLValidationException;
 import bback.module.poqh3.exceptions.NoConstructorException;
 import bback.module.poqh3.utils.ClassUtils;
 
@@ -19,9 +20,7 @@ public class JpqlSelect implements Select {
 
 
     public JpqlSelect(Class<?> resultType, List<Column> selectColumnList) {
-        if (resultType.getDeclaredConstructors().length < 1) {
-            throw new NoConstructorException("JPQL 을 생성하려면 조회하고 싶은 객체의 Column 에 맞는 생성자를 생성해주세요.");
-        }
+        this.validationArguments(resultType);
 
         List<String> attrList = selectColumnList.stream().map(Column::getAttr).collect(Collectors.toList());
         Constructor<?>[] constructors = resultType.getDeclaredConstructors();
@@ -99,5 +98,15 @@ public class JpqlSelect implements Select {
             }
         }
         return result;
+    }
+
+    private void validationArguments(Class<?> resultType) {
+        if ( resultType == null ) {
+            throw new DMLValidationException(" resultType 을 지정해주세요. ");
+        }
+
+        if (resultType.getDeclaredConstructors().length < 1) {
+            throw new NoConstructorException("JPQL 을 생성하려면 조회하고 싶은 객체의 Column 에 맞는 생성자를 생성해주세요.");
+        }
     }
 }

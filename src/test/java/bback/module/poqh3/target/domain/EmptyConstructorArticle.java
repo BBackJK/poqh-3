@@ -16,4 +16,36 @@ public class EmptyConstructorArticle {
                 ", memberName='" + memberName + '\'' +
                 '}';
     }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContents() {
+        return contents;
+    }
+
+    public String getMemberName() {
+        return memberName;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContents(String contents) {
+        this.contents = contents;
+    }
+
+    public void setMemberName(String memberName) {
+        this.memberName = memberName;
+    }
 }

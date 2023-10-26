@@ -4,7 +4,6 @@ import bback.module.poqh3.Column;
 import bback.module.poqh3.SQLContext;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.exceptions.DMLValidationException;
-import bback.module.poqh3.utils.Objects;
 
 import java.util.List;
 
@@ -14,9 +13,6 @@ public class ContextTable<T extends SQLContext<?>> implements Table<T> {
     private String alias;
 
     public ContextTable(T context, String alias) {
-        if ( Objects.isEmpty( alias ) ) {
-            throw new DMLValidationException(" Context Table Is Required Alias. ");
-        }
         if ( context.isJpql() ) {
             throw new DMLValidationException(" Context Table Is Only Supported Native. ");
         }
@@ -28,10 +24,13 @@ public class ContextTable<T extends SQLContext<?>> implements Table<T> {
     public String toQuery() {
         String query = context.toQuery();
         String[] queries = query.split("\n");
+        int queryLineCount = queries.length;
+
         StringBuilder sb = new StringBuilder(" ");
         sb.append("(");
         sb.append("\n");
-        for (String q : queries) {
+        for (int i=0; i<queryLineCount;i++) {
+            String q = queries[i];
             sb.append("\t");
             sb.append(q);
             sb.append("\n");

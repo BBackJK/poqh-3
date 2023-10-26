@@ -26,6 +26,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     private final List<Order> orderList = new ArrayList<>();
     private final List<Column> groupByList = new ArrayList<>();
     private From<T> from;
+    private Class<?> resultType;
     private boolean isJpql;
 
     public SQLContextImpl(EntityManager entityManager, ObjectMapper om) {
@@ -35,14 +36,21 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
     @Override
     public String toQuery() {
+        if ( this.resultType == null ) {
+            this.resultType = this.getRootEntityType();
+        }
         StringBuilder sb = new StringBuilder();
 
-        if (hasTable()) {
+        Select select = this.isJpql() ? new JpqlSelect(this.resultType, this.selectColumnList) : new NativeSelect(this.selectColumnList);
+        sb.append(select.toQuery());
+        sb.append("\n");
+
+        if ( hasTable() ) {
             sb.append(from.toQuery());
-            sb.append("\n");
+//            sb.append("\n");
         }
 
-        if (hasWhere()) {
+        if ( hasWhere() ) {
             sb.append(" where ");
             this.whereList.forEach(w -> {
                 sb.append(w.toQuery());
@@ -50,7 +58,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
             });
         }
 
-        if (hasOrder()) {
+        if ( hasOrder() ) {
             sb.append(" order by ");
             int orderCount = this.orderList.size();
             int n = 1;
@@ -124,7 +132,10 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
     @Override
     public <R> List<R> toResultList(Class<R> resultType) {
-        String query = this.getResultQuery(resultType);
+        this.resultType = resultType;
+        String query = toQuery();
+        System.out.println(query);
+
         QueryResultHandler<R> resultHandler = this.isJpql
                 ? new JpqlResultHandler<>(this.entityManager, resultType)
                 : new NativeResultHandler<>(this.entityManager, resultType, this.om, this.selectColumnList);
@@ -142,7 +153,10 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
     @Override
     public <R> Optional<R> toResult(Class<R> resultType) {
+        this.resultType = resultType;
         String query = this.toQuery();
+
+        System.out.println(query);
 
         QueryResultHandler<R> resultHandler = this.isJpql
                 ? new JpqlResultHandler<>(this.entityManager, resultType)
