@@ -19,12 +19,12 @@ class OrderImpl implements Order {
 
 
     @Override
-    public void DESC() {
+    public void desc() {
         this.orderBy = OrderBy.DESC;
     }
 
     @Override
-    public void ASC() {
+    public void asc() {
         this.orderBy = OrderBy.ASC;
     }
 

@@ -79,57 +79,48 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         return sb.toString();
     }
 
-
+    @Override
+    public SQLContext<T> select(Column... columns) {
+        this.selectColumnList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
+        return this;
+    }
 
     @Override
-    public From<T> FROM(Table<T> table) {
+    public From<T> from(Table<T> table) {
         if (!table.hasAlias()) {
-            table.AS(1);
+            table.as(1);
         }
         this.isJpql = table.isJpql();
-        this.from = new FromImpl<>(table);
+        this.from = new FromImpl<>(this, table);
         return this.from;
     }
 
     @Override
-    public void SELECT(Column... columns) {
-        this.selectColumnList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
-    }
-
-    @Override
-    public void WHERE(Predictor... predictors) {
+    public SQLContext<T> where(Predictor... predictors) {
         this.whereList.addAll(Arrays.asList(predictors));
+        return this;
     }
 
     @Override
-    public Order ORDER(Column column) {
-        OrderImpl order = new OrderImpl(column);
-        this.orderList.add(order);
-        return order;
-    }
-
-    @Override
-    public void ORDER(Column... columns) {
+    public SQLContext<T> order(Column... columns) {
         for (Column c : columns) {
-            ORDER(c);
+            order(c, Order.OrderBy.ASC);
         }
+        return this;
     }
 
     @Override
-    public void GROUP(Column... columns) {
-        this.groupByList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
+    public SQLContext<T> order(Column column, Order.OrderBy orderBy) {
+        OrderImpl order = new OrderImpl(column, orderBy);
+        this.orderList.add(order);
+        return this;
     }
 
-//    @Override
-//    public SQLContext select(Column... columns) {
-//        this.selectColumnList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
-//        return this;
-//    }
-//
-//    @Override
-//    public SQLContext from(Table<?> table) {
-//        return null;
-//    }
+    @Override
+    public SQLContext<T> group(Column... columns) {
+        this.groupByList.addAll(Arrays.stream(columns).collect(Collectors.toList()));
+        return this;
+    }
 
     @Override
     public <R> List<R> toResultList(Class<R> resultType) {
@@ -207,4 +198,5 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     private boolean hasGroupBy() {
         return !this.groupByList.isEmpty();
     }
+
 }

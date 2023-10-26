@@ -17,47 +17,47 @@ abstract class AbstractPredictorColumn implements Column {
 
 
     @Override
-    public Predictor EQ(Column column) {
+    public Predictor eq(Column column) {
         return new Equals(this, column);
     }
 
     @Override
-    public Predictor GT(Column column) {
+    public Predictor gt(Column column) {
         return new Greaters(this, column);
     }
 
     @Override
-    public Predictor GE(Column column) {
+    public Predictor ge(Column column) {
         return new Greaters(this, column, true);
     }
 
     @Override
-    public Predictor LT(Column column) {
+    public Predictor lt(Column column) {
         return new Lesses(this, column);
     }
 
     @Override
-    public Predictor LE(Column column) {
+    public Predictor le(Column column) {
         return new Lesses(this, column, true);
     }
 
     @Override
-    public Predictor IN(Column... columns) {
+    public Predictor in(Column... columns) {
         return new Ins(this, Arrays.asList(columns));
     }
 
     @Override
-    public Predictor LIKE(Column column, LikeType likeType) {
+    public Predictor like(Column column, LikeType likeType) {
         return new Likes(this, column, likeType);
     }
 
     @Override
-    public Predictor IS_NULL() {
+    public Predictor isNull() {
         return new Nulls(this, false);
     }
 
     @Override
-    public Predictor IS_NOT_NULL() {
+    public Predictor isNotNull() {
         return new Nulls(this, true);
     }
 }

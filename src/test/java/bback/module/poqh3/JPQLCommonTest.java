@@ -44,10 +44,11 @@ class JPQLCommonTest extends EntityManagerProvider {
                         Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
                         Table<ArticleEntity> ARTICLE = Native.TABLE(ArticleEntity.class);
 
-                        SQLContext<ArticleEntity> context = SQLContextFactory.getContext(em);
-                        context.SELECT(ARTICLE.ALL());
-                        context.FROM(ARTICLE)
-                                .JOIN(MEMBER).ON(ARTICLE.COLUMN("member_id").EQ(MEMBER.COLUMN("id")));
+                        SQLContextFactory.<ArticleEntity>getContext(em)
+                                .select(ARTICLE.all())
+                                .from(ARTICLE)
+                                .join(MEMBER)
+                                .on(ARTICLE.col("member_id").eq(MEMBER.col("id")));
                     });
                 }
         );
@@ -60,12 +61,12 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
-            SQLContext<MemberEntity> memberContext = SQLContextFactory.getContext(em);
 
-            memberContext.SELECT(MEMBER.ALL());
-            memberContext.FROM(MEMBER);
+            List<MemberEntity> memberList = SQLContextFactory.<MemberEntity>getContext(em)
+                    .select(MEMBER.all())
+                    .from(MEMBER)
+                    .toResultList(MemberEntity.class);
 
-            List<MemberEntity> memberList = memberContext.toResultList(MemberEntity.class);
             Assertions.assertEquals(3, memberList.size());
         });
     }
@@ -77,13 +78,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
-            SQLContext<MemberEntity> memberContext = SQLContextFactory.getContext(em);
 
-            memberContext.SELECT(MEMBER.ALL());
-            memberContext.FROM(MEMBER);
-            memberContext.ORDER(MEMBER.COLUMN("id")).DESC();
+            List<MemberEntity> memberList = SQLContextFactory.<MemberEntity>getContext(em)
+                    .select(MEMBER.all())
+                    .from(MEMBER)
+                    .order(MEMBER.col("id"), Order.OrderBy.DESC)
+                    .toResultList(MemberEntity.class);
 
-            List<MemberEntity> memberList = memberContext.toResultList(MemberEntity.class);
             Assertions.assertEquals(3, memberList.size());
             Assertions.assertEquals("test3", memberList.get(0).getId());
         });
@@ -96,13 +97,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
-            SQLContext<MemberEntity> memberContext = SQLContextFactory.getContext(em);
 
-            memberContext.SELECT(MEMBER.COLUMN("name"));
-            memberContext.FROM(MEMBER);
-            memberContext.GROUP(MEMBER.COLUMN("name"));
+            List<MemberEntity> memberList = SQLContextFactory.<MemberEntity>getContext(em)
+                    .select(MEMBER.col("name"))
+                    .from(MEMBER)
+                    .group(MEMBER.col("name"))
+                    .toResultList(MemberEntity.class);
 
-            List<MemberEntity> memberList = memberContext.toResultList(MemberEntity.class);
             Assertions.assertEquals(2, memberList.size());
             Assertions.assertNull(memberList.get(0).getId());
             Assertions.assertNull(memberList.get(1).getId());
@@ -118,13 +119,14 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
-            SQLContext<MemberEntity> memberContext = SQLContextFactory.getContext(em);
 
-            memberContext.SELECT(MEMBER.ALL());
-            memberContext.FROM(MEMBER);
-            memberContext.WHERE(MEMBER.COLUMN("id").EQ(Column.VALUE("test1")));
+            MemberEntity member = SQLContextFactory.<MemberEntity>getContext(em)
+                    .select(MEMBER.all())
+                    .from(MEMBER)
+                    .where(MEMBER.col("id").eq(Column.VALUE("test1")))
+                    .toResult(MemberEntity.class)
+                    .get();
 
-            MemberEntity member = memberContext.toResult(MemberEntity.class).get();
             Assertions.assertEquals("test1", member.getId());
         });
     }
@@ -136,16 +138,15 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
-            SQLContext<MemberEntity> memberContext = SQLContextFactory.getContext(em);
-
-            memberContext.SELECT(MEMBER.ALL());
-            memberContext.FROM(MEMBER);
-            memberContext.WHERE(MEMBER.COLUMN("id").EQ(Column.VALUE("test5")));
 
             Assertions.assertThrowsExactly(
                     RuntimeException.class
                     , () -> {
-                        MemberEntity member = memberContext.toResult(MemberEntity.class).orElseThrow(() -> new RuntimeException("없습니다."));
+                        MemberEntity member = SQLContextFactory.<MemberEntity>getContext(em)
+                                .select(MEMBER.all())
+                                .from(MEMBER)
+                                .where(MEMBER.col("id").eq(Column.VALUE("test5")))
+                                .toResult(MemberEntity.class).orElseThrow(() -> new RuntimeException("없습니다."));
                     }
             );
         });
@@ -159,15 +160,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(
-                    ARTICLE.COLUMN("id").GT(Column.VALUE(2))
-            );
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("id").gt(Column.VALUE(2)))
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(4, articleEntities.size());
         });
     }
@@ -180,15 +179,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(
-                    ARTICLE.COLUMN("id").GE(Column.VALUE(2))
-            );
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("id").ge(Column.VALUE(2)))
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(5, articleEntities.size());
         });
     }
@@ -201,15 +198,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(
-                    ARTICLE.COLUMN("id").LT(Column.VALUE(2))
-            );
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("id").lt(Column.VALUE(2)))
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(1, articleEntities.size());
         });
     }
@@ -222,15 +217,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(
-                    ARTICLE.COLUMN("id").LE(Column.VALUE(2))
-            );
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("id").le(Column.VALUE(2)))
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(2, articleEntities.size());
         });
     }
@@ -243,18 +236,16 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(
-                    ARTICLE.COLUMN("id")
-                            .IN(
-                                    Column.VALUES(3, 5, 6)
-                            )
-            );
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(
+                            ARTICLE.col("id")
+                                    .in(Column.VALUES(3, 5, 6))
+                    )
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(3, articleEntities.size());
         });
     }
@@ -267,13 +258,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(ARTICLE.COLUMN("contents").IS_NULL());
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("contents").isNull())
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(1, articleEntities.size());
             Assertions.assertNull(articleEntities.get(0).getContents());
         });
@@ -287,13 +278,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(ARTICLE.COLUMN("contents").IS_NOT_NULL());
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("contents").isNotNull())
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(5, articleEntities.size());
         });
     }
@@ -306,13 +297,13 @@ class JPQLCommonTest extends EntityManagerProvider {
             saveDummyArticle(em);
 
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(ARTICLE.COLUMN("contents").LIKE(Column.VALUE("내용")));
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("contents").like(Column.VALUE("내용")))
+                    .toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
             Assertions.assertEquals(4, articleEntities.size());
         });
     }
@@ -327,11 +318,19 @@ class JPQLCommonTest extends EntityManagerProvider {
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
             SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(ARTICLE.COLUMN("contents").LIKE(Column.VALUE("내"), LikeType.START));
+//            articleContext.SELECT(ARTICLE.ALL());
+//            articleContext.FROM(ARTICLE);
+//            articleContext.WHERE(ARTICLE.COLUMN("contents").LIKE(Column.VALUE("내"), LikeType.START));
+//            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(
+                            ARTICLE.col("contents")
+                                    .like(Column.VALUE("내"), LikeType.START))
+                    .toResultList(ArticleEntity.class);
+
             Assertions.assertEquals(5, articleEntities.size());
         });
     }
@@ -346,11 +345,17 @@ class JPQLCommonTest extends EntityManagerProvider {
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
             SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE);
-            articleContext.WHERE(ARTICLE.COLUMN("contents").LIKE(Column.VALUE("5"), LikeType.END));
+//            articleContext.SELECT(ARTICLE.ALL());
+//            articleContext.FROM(ARTICLE);
+//            articleContext.WHERE(ARTICLE.COLUMN("contents").LIKE(Column.VALUE("5"), LikeType.END));
+//            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
 
-            List<ArticleEntity> articleEntities = articleContext.toResultList(ArticleEntity.class);
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("contents").like(Column.VALUE(5), LikeType.END))
+                    .toResultList(ArticleEntity.class);
+
             Assertions.assertEquals(2, articleEntities.size());
         });
     }

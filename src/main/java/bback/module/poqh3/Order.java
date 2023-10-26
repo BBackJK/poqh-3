@@ -2,8 +2,8 @@ package bback.module.poqh3;
 
 public interface Order extends Native, JPQL {
 
-    void DESC();
-    void ASC();
+    void desc();
+    void asc();
 
 
     enum OrderBy {

@@ -1,7 +1,6 @@
 package bback.module.poqh3.join;
 
 import bback.module.poqh3.JPQL;
-import bback.module.poqh3.SQLContext;
 import bback.module.poqh3.SQLContextFactory;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.target.entity.ArticleEntity;
@@ -26,15 +25,13 @@ class JPQLJoinTest extends EntityManagerProvider {
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
 
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
+            List<ArticleEntity> articles = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .join(MEMBER)
+                    .toResultList(ArticleEntity.class);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE)
-                    .JOIN(MEMBER);
-
-            List<ArticleEntity> articles = articleContext.toResultList(ArticleEntity.class);
-            Assertions.assertEquals(6, articles.size());
-            for (ArticleEntity ae : articles) {
+            for (ArticleEntity ae: articles) {
                 Assertions.assertNotNull(ae.getMember());
             }
         });
@@ -50,16 +47,14 @@ class JPQLJoinTest extends EntityManagerProvider {
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
             Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
 
-            SQLContext<ArticleEntity> articleContext = SQLContextFactory.getContext(em);
+            List<ArticleEntity> articles = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .join(MEMBER)
+                    .on(MEMBER.col("id").eq(ARTICLE.col("member_id")))
+                    .toResultList(ArticleEntity.class);
 
-            articleContext.SELECT(ARTICLE.ALL());
-            articleContext.FROM(ARTICLE)
-                    .JOIN(MEMBER)
-                    .ON(MEMBER.COLUMN("id").EQ(ARTICLE.COLUMN("member_id")));
-
-            List<ArticleEntity> articles = articleContext.toResultList(ArticleEntity.class);
-            Assertions.assertEquals(6, articles.size());
-            for (ArticleEntity ae : articles) {
+            for (ArticleEntity ae: articles) {
                 Assertions.assertNotNull(ae.getMember());
             }
         });

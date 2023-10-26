@@ -42,32 +42,32 @@ public class ContextTable<T extends SQLContext<?>> implements Table<T> {
     }
 
     @Override
-    public void AS(String alias) {
+    public void as(String alias) {
         this.alias = alias;
     }
 
     @Override
-    public void AS(int tableIndex) {
+    public void as(int tableIndex) {
         this.alias = String.format("c%d", tableIndex);
     }
 
     @Override
-    public Column COLUMN(String field, String alias) {
+    public Column col(String field, String alias) {
         return new NativeColumn<>(this, field, alias);
     }
 
     @Override
-    public Column[] COLUMNS(String... fields) {
+    public Column[] cols(String... fields) {
         int attrCount = fields.length;
         Column[] result = new Column[attrCount];
         for (int i=0; i<attrCount; i++) {
-            result[i] = COLUMN(fields[i]);
+            result[i] = col(fields[i]);
         }
         return result;
     }
 
     @Override
-    public Column[] ALL() {
+    public Column[] all() {
         List<Column> columnList = this.context.getSelectColumnList();
         int columnCount = columnList.size();
         Column[] columns = new Column[columnCount];

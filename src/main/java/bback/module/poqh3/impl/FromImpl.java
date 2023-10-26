@@ -1,22 +1,24 @@
 package bback.module.poqh3.impl;
 
-import bback.module.poqh3.From;
-import bback.module.poqh3.Join;
-import bback.module.poqh3.Table;
+import bback.module.poqh3.*;
 import bback.module.poqh3.exceptions.DMLValidationException;
 import bback.module.poqh3.utils.Objects;
 import bback.module.poqh3.utils.PersistenceUtils;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.criteria.JoinType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 class FromImpl<T> implements From<T> {
 
+    private final SQLContext<T> context;
     private final Table<T> root;
     private final List<Join<T, ?>> joinList = new ArrayList<>();
 
-    public FromImpl(Table<T> root) {
+    public FromImpl(SQLContext<T> context, Table<T> root) {
+        this.context = context;
         this.root = root;
     }
 
@@ -43,12 +45,12 @@ class FromImpl<T> implements From<T> {
     }
 
     @Override
-    public <R> Join<T,R> JOIN(Table<R> joinTable, JoinType joinType) {
+    public <R> Join<T, R> join(Table<R> joinTable, JoinType joinType) {
         this.validationTable(joinTable, joinType);
 
         if ( !joinTable.hasAlias() ) {
             int joinCount = this.joinList.size();
-            joinTable.AS(joinCount + 2);
+            joinTable.as(joinCount + 2);
         }
 
         if (this.isJpql()) {
@@ -61,17 +63,37 @@ class FromImpl<T> implements From<T> {
         Join<T,R> join = null;
         switch (joinType) {
             case LEFT:
-                join = new LeftJoin<>(this, joinTable);
+                join = new LeftJoin<>(this.context, this, joinTable);
                 break;
             case RIGHT:
-                join = new RightJoin<>(this, joinTable);
+                join = new RightJoin<>(this.context, this, joinTable);
                 break;
             default:
-                join = new InnerJoin<>(this, joinTable);
+                join = new InnerJoin<>(this.context, this, joinTable);
                 break;
         }
         this.joinList.add(join);
         return join;
+    }
+
+    @Override
+    public SQLContext<T> where(Predictor... predictors) {
+        return this.context.where(predictors);
+    }
+
+    @Override
+    public SQLContext<T> order(Column... columns) {
+        return this.context.order(columns);
+    }
+
+    @Override
+    public SQLContext<T> order(Column column, Order.OrderBy orderBy) {
+        return this.context.order(column, orderBy);
+    }
+
+    @Override
+    public SQLContext<T> group(Column... columns) {
+        return this.context.group(columns);
     }
 
     @Override
@@ -82,6 +104,16 @@ class FromImpl<T> implements From<T> {
     @Override
     public boolean isJpql() {
         return this.root.isJpql();
+    }
+
+    @Override
+    public <R> List<R> toResultList(Class<R> resultType) throws PersistenceException {
+        return this.context.toResultList(resultType);
+    }
+
+    @Override
+    public <R> Optional<R> toResult(Class<R> resultType) throws PersistenceException {
+        return this.context.toResult(resultType);
     }
 
     private void validationTable(Table<?> joinTable, JoinType joinType) {

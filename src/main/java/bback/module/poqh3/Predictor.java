@@ -6,11 +6,11 @@ import bback.module.poqh3.impl.Or;
 
 public interface Predictor extends SQL {
 
-    default And AND(Predictor predictor) {
+    default And and(Predictor predictor) {
         return new And(this, predictor);
     }
 
-    default Or OR(Predictor predictor) {
+    default Or or(Predictor predictor) {
         return new Or(this, predictor);
     }
 

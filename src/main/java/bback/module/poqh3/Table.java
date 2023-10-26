@@ -2,18 +2,20 @@ package bback.module.poqh3;
 
 public interface Table<T> extends JPQL, Native {
 
-    void AS(String alias);
+    void as(String alias);
 
-    void AS(int tableIndex);
-
-    default Column COLUMN(String field) {
-        return COLUMN(field, null);
+    default void as(int tableIndex) {
+        as(String.format("t%d", tableIndex));
     }
 
-    Column COLUMN(String field, String alias);
-    Column[] COLUMNS(String... fields);
+    default Column col(String field) {
+        return col(field, null);
+    }
 
-    Column[] ALL();
+    Column col(String field, String alias);
+    Column[] cols(String... fields);
+
+    Column[] all();
 
     boolean hasAlias();
 

@@ -11,26 +11,26 @@ public interface Column extends Native, JPQL {
     String getAlias();
     boolean hasAlias();
 
-    Predictor EQ(Column column);
+    Predictor eq(Column column);
 
-    Predictor GT(Column column);
+    Predictor gt(Column column);
 
-    Predictor GE(Column column);
+    Predictor ge(Column column);
 
-    Predictor LT(Column column);
+    Predictor lt(Column column);
 
-    Predictor LE(Column column);
+    Predictor le(Column column);
 
-    Predictor IN(Column... columns);
+    Predictor in(Column... columns);
 
-    Predictor LIKE(Column column, LikeType likeType);
+    Predictor like(Column column, LikeType likeType);
 
-    Predictor IS_NULL();
+    Predictor isNull();
 
-    Predictor IS_NOT_NULL();
+    Predictor isNotNull();
 
-    default Predictor LIKE(Column column) {
-        return LIKE(column, LikeType.ANY);
+    default Predictor like(Column column) {
+        return like(column, LikeType.ANY);
     }
 
     static Value VALUE(Object data) {
