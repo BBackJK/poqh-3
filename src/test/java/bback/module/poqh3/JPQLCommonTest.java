@@ -132,6 +132,25 @@ class JPQLCommonTest extends EntityManagerProvider {
     }
 
     @Test
+    @DisplayName("Where_Predictor_Not_Equal_테스트")
+    void Where_Predictor_Not_Equal_테스트() {
+        executeQuery(em -> {
+            saveDummyMember(em);
+
+            Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
+
+            List<MemberEntity> members = SQLContextFactory.<MemberEntity>getContext(em)
+                    .select(MEMBER.all())
+                    .from(MEMBER)
+                    .where(MEMBER.col("id").neq(Column.VALUE("test1")))
+                    .toResultList(MemberEntity.class)
+                    ;
+
+            Assertions.assertEquals(2, members.size());
+        });
+    }
+
+    @Test
     @DisplayName("Where_Predictor_Equal_Result_Null_테스트")
     void Where_Predictor_Equal_Result_Null_테스트() {
         executeQuery(em -> {
@@ -252,6 +271,31 @@ class JPQLCommonTest extends EntityManagerProvider {
     }
 
     @Test
+    @DisplayName("Where_Predictor_Not_In_테스트")
+    void Where_Predictor_Not_In_테스트() {
+        executeQuery(em -> {
+            saveDummyMember(em);
+            saveDummyArticle(em);
+
+            Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
+
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(
+                            ARTICLE.col("id")
+                                    .notIn(Column.VALUES(3, 5, 6))
+                    )
+                    .toResultList(ArticleEntity.class);
+
+            Assertions.assertEquals(3, articleEntities.size());
+            Assertions.assertEquals(1, articleEntities.get(0).getId());
+            Assertions.assertEquals(2, articleEntities.get(1).getId());
+            Assertions.assertEquals(4, articleEntities.get(2).getId());
+        });
+    }
+
+    @Test
     @DisplayName("Where_Predictor_Null_테스트")
     void Where_Predictor_Null_테스트() {
         executeQuery(em -> {
@@ -358,6 +402,50 @@ class JPQLCommonTest extends EntityManagerProvider {
                     .toResultList(ArticleEntity.class);
 
             Assertions.assertEquals(2, articleEntities.size());
+        });
+    }
+
+    @Test
+    @DisplayName("Where_Predictor_Between_테스트")
+    void Where_Predictor_Between_테스트() {
+        executeQuery(em -> {
+            saveDummyMember(em);
+            saveDummyArticle(em);
+
+            Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
+
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("id").between(Column.VALUE(3), Column.VALUE(5)))
+                    .toResultList(ArticleEntity.class);
+
+            Assertions.assertEquals(3, articleEntities.size());
+            Assertions.assertEquals(3, articleEntities.get(0).getId());
+            Assertions.assertEquals(4, articleEntities.get(1).getId());
+            Assertions.assertEquals(5, articleEntities.get(2).getId());
+        });
+    }
+
+    @Test
+    @DisplayName("Where_Predictor_Not_Between_테스트")
+    void Where_Predictor_Not_Between_테스트() {
+        executeQuery(em -> {
+            saveDummyMember(em);
+            saveDummyArticle(em);
+
+            Table<ArticleEntity> ARTICLE = JPQL.TABLE(ArticleEntity.class);
+
+            List<ArticleEntity> articleEntities = SQLContextFactory.<ArticleEntity>getContext(em)
+                    .select(ARTICLE.all())
+                    .from(ARTICLE)
+                    .where(ARTICLE.col("id").notBetween(Column.VALUE(3), Column.VALUE(5)))
+                    .toResultList(ArticleEntity.class);
+
+            Assertions.assertEquals(3, articleEntities.size());
+            Assertions.assertEquals(1, articleEntities.get(0).getId());
+            Assertions.assertEquals(2, articleEntities.get(1).getId());
+            Assertions.assertEquals(6, articleEntities.get(2).getId());
         });
     }
 }

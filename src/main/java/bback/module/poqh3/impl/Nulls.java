@@ -8,6 +8,10 @@ class Nulls implements Predictor {
     private final Column source;
     private final boolean isNot;
 
+    public Nulls(Column source) {
+        this(source, false);
+    }
+
     public Nulls(Column source, boolean isNot) {
         this.source = source;
         this.isNot = isNot;

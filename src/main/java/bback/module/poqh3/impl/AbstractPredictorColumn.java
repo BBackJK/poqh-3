@@ -9,16 +9,14 @@ import java.util.Arrays;
 
 abstract class AbstractPredictorColumn implements Column {
 
-    public abstract String getAttr();
-
-    public abstract boolean hasAlias();
-
-    public abstract String toQuery();
-
-
     @Override
     public Predictor eq(Column column) {
         return new Equals(this, column);
+    }
+
+    @Override
+    public Predictor neq(Column column) {
+        return new Equals(this, column, true);
     }
 
     @Override
@@ -47,17 +45,32 @@ abstract class AbstractPredictorColumn implements Column {
     }
 
     @Override
+    public Predictor notIn(Column... columns) {
+        return new Ins(this, Arrays.asList(columns), true);
+    }
+
+    @Override
     public Predictor like(Column column, LikeType likeType) {
         return new Likes(this, column, likeType);
     }
 
     @Override
     public Predictor isNull() {
-        return new Nulls(this, false);
+        return new Nulls(this);
     }
 
     @Override
     public Predictor isNotNull() {
         return new Nulls(this, true);
+    }
+
+    @Override
+    public Predictor between(Column from, Column to) {
+        return new Betweens(this, from, to);
+    }
+
+    @Override
+    public Predictor notBetween(Column from, Column to) {
+        return new Betweens(this, from, to, true);
     }
 }
