@@ -10,6 +10,10 @@ class NativeColumn<T> extends AbstractPredictorColumn {
     private final String field;
     private final String alias;
 
+    public NativeColumn(Table<T> table, String field) {
+        this(table, field, null);
+    }
+
     public NativeColumn(Table<T> table, String field, String alias) {
         this.table = table;
         this.field = field;
@@ -18,12 +22,12 @@ class NativeColumn<T> extends AbstractPredictorColumn {
 
     @Override
     public String toQuery() {
-        return String.format("%s.%s", this.table.getAlias(), Strings.camel2Under(field));
+        return String.format("%s.%s", this.table.getAlias(), field);
     }
 
     @Override
     public String getAttr() {
-        return hasAlias() ? Strings.camel2Under(alias) : Strings.camel2Under(field);
+        return hasAlias() ? Strings.camel2Under(alias) : field;
     }
 
     @Override

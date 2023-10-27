@@ -13,6 +13,7 @@ public interface Table<T> extends JPQL, Native {
     }
 
     Column col(String field, String alias);
+
     Column[] cols(String... fields);
 
     Column[] all();

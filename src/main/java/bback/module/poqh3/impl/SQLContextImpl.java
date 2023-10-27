@@ -47,7 +47,6 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
         if ( hasTable() ) {
             sb.append(from.toQuery());
-//            sb.append("\n");
         }
 
         if ( hasWhere() ) {
@@ -155,7 +154,6 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     public <R> Optional<R> toResult(Class<R> resultType) {
         this.resultType = resultType;
         String query = this.toQuery();
-
         System.out.println(query);
 
         QueryResultHandler<R> resultHandler = this.isJpql
@@ -186,15 +184,6 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     @Override
     public boolean isJpql() {
         return this.isJpql;
-    }
-
-    private String getResultQuery(Class<?> resultType) {
-        StringBuilder sb = new StringBuilder();
-        Select select = this.isJpql() ? new JpqlSelect(resultType, this.selectColumnList) : new NativeSelect(this.selectColumnList);
-        sb.append(select.toQuery());
-        sb.append("\n");
-        sb.append(this.toQuery());
-        return sb.toString();
     }
 
     private boolean hasTable() {

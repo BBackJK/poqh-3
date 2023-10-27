@@ -4,6 +4,7 @@ import bback.module.poqh3.Column;
 import bback.module.poqh3.SQLContext;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.exceptions.DMLValidationException;
+import bback.module.poqh3.utils.Strings;
 
 import java.util.List;
 
@@ -52,6 +53,10 @@ public class ContextTable<T extends SQLContext<?>> implements Table<T> {
 
     @Override
     public Column col(String field, String alias) {
+        Column target = getColumn(field, alias);
+        if ( target == null ) {
+            throw new DMLValidationException(" context 에 없는 조회 컬럼명 입니다. ");
+        }
         return new NativeColumn<>(this, field, alias);
     }
 
@@ -96,5 +101,22 @@ public class ContextTable<T extends SQLContext<?>> implements Table<T> {
     @Override
     public boolean isJpql() {
         return false;
+    }
+
+    private Column getColumn(String fieldName, String alias) {
+        boolean hasAlias = alias != null && !alias.isEmpty();
+        String underFieldName = Strings.camel2Under(fieldName);
+        List<Column> columnList = context.getSelectColumnList();
+        int columnCount = columnList.size();
+        for (int i = 0 ; i < columnCount ; i++) {
+            Column column = columnList.get(i);
+            if ( column.getAttr().equals(underFieldName) ) {
+                return hasAlias
+                        ? new NativeColumn<>(this, underFieldName, alias)
+                        : column;
+            }
+        }
+
+        return null;
     }
 }
