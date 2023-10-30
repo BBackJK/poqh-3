@@ -2,7 +2,7 @@ package bback.module.poqh3;
 
 import java.util.List;
 
-public interface SQLContext<T> extends OptionalExpression<T>, ResultProvider, SQL {
+public interface SQLContext<T> extends OptionalExpression<T>, PaginationExpression<T>, ResultProvider, SQL {
 
 
     SQLContext<T> select(Column... columns);

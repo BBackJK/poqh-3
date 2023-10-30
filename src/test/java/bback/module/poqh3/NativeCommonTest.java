@@ -3,20 +3,29 @@ package bback.module.poqh3;
 import bback.module.poqh3.target.domain.EmptyConstructorArticle;
 import bback.module.poqh3.target.entity.ArticleEntity;
 import bback.module.poqh3.target.entity.MemberEntity;
-import bback.module.provider.EntityManagerProvider;
+import bback.module.provider.EntityFactoryProvider;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 @DisplayName("NATIVE_일반_테스트_그룹")
-class NativeCommonTest extends EntityManagerProvider {
+class NativeCommonTest extends EntityFactoryProvider {
+
+    private EntityManagerFactory emf;
+
+    @BeforeEach
+    void before() {
+        emf = loadH2();
+    }
 
     @Test
     @DisplayName("목록_조회_테스트")
     void 목록_조회_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
 
             Table<MemberEntity> member = Native.TABLE(MemberEntity.class);
@@ -32,9 +41,28 @@ class NativeCommonTest extends EntityManagerProvider {
     }
 
     @Test
+    @DisplayName("목록_조회_페이징_테스트")
+    void 목록_조회_페이징_테스트() {
+        executeQuery(emf, em -> {
+            saveDummyMember(em);
+
+            Table<MemberEntity> member = Native.TABLE(MemberEntity.class);
+
+            List<MemberEntity> memberList = SQLContextFactory.<MemberEntity>getContext(em)
+                    .select(member.all())
+                    .from(member)
+                    .offset(1)
+                    .limit(2)
+                    .toResultList(MemberEntity.class);
+
+            Assertions.assertEquals(2, memberList.size());
+        });
+    }
+
+    @Test
     @DisplayName("From_SubQuery_테스트")
     void IS_TEST() {
-        executeQuery(entityManager -> {
+        executeQuery(emf, entityManager -> {
             saveDummyMember(entityManager);
             saveDummyArticle(entityManager);
 

@@ -87,6 +87,16 @@ abstract class AbstractJoin<T,R> implements Join<T,R> {
     }
 
     @Override
+    public SQLContext<T> limit(int limit) {
+        return this.context.limit(limit);
+    }
+
+    @Override
+    public SQLContext<T> offset(int offset) {
+        return this.context.offset(offset);
+    }
+
+    @Override
     public <R> List<R> toResultList(Class<R> resultType) throws PersistenceException {
         return this.context.toResultList(resultType);
     }

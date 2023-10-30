@@ -20,6 +20,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     private static final Log LOGGER = LogFactory.getLog(SQLContext.class);
 
     private final EntityManager entityManager;
+    private final DatabaseVendor databaseVendor;
     private final ObjectMapper om;
     private final List<Column> selectColumnList = new ArrayList<>();
     private final List<Predictor> whereList = new ArrayList<>();
@@ -28,20 +29,21 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     private From<T> from;
     private Class<?> resultType;
     private boolean isJpql;
+    private Pager pager = null;
 
     public SQLContextImpl(EntityManager entityManager, ObjectMapper om) {
         this.entityManager = entityManager;
+        this.databaseVendor = NativeHandlerFactory.getVendor(entityManager);
         this.om = om;
     }
 
     @Override
     public String toQuery() {
-        if ( this.resultType == null ) {
-            this.resultType = this.getRootEntityType();
-        }
         StringBuilder sb = new StringBuilder();
 
-        Select select = this.isJpql() ? new JpqlSelect(this.resultType, this.selectColumnList) : new NativeSelect(this.selectColumnList);
+        Select select = this.isJpql()
+                ? new JpqlSelect(this.resultType == null ? this.getRootEntityType() : this.resultType, this.selectColumnList)
+                : new NativeSelect(this.selectColumnList);
         sb.append(select.toQuery());
         sb.append("\n");
 
@@ -83,6 +85,11 @@ public class SQLContextImpl<T> implements SQLContext<T> {
             sb.append("\n");
         }
 
+        if ( hasPagination() && !isJpql ) {
+            sb.append(this.pager.toQuery());
+            sb.append("\n");
+        }
+
         return sb.toString();
     }
 
@@ -100,6 +107,24 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         this.isJpql = table.isJpql();
         this.from = new FromImpl<>(this, table);
         return this.from;
+    }
+
+    @Override
+    public SQLContext<T> limit(int limit) {
+        if ( !this.hasPagination() ) {
+            this.pager = isJpql ? new JpqlPager() : NativeHandlerFactory.getPager(this.databaseVendor);
+        }
+        this.pager.setLimit(limit);
+        return this;
+    }
+
+    @Override
+    public SQLContext<T> offset(int offset) {
+        if ( !this.hasPagination() ) {
+            this.pager = isJpql ? new JpqlPager() : NativeHandlerFactory.getPager(this.databaseVendor);
+        }
+        this.pager.setOffset(offset);
+        return this;
     }
 
     @Override
@@ -136,7 +161,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
         System.out.println(query);
 
         QueryResultHandler<R> resultHandler = this.isJpql
-                ? new JpqlResultHandler<>(this.entityManager, resultType)
+                ? new JpqlResultHandler<>(this.entityManager, resultType, this.pager)
                 : new NativeResultHandler<>(this.entityManager, resultType, this.om, this.selectColumnList);
 
         try {
@@ -200,6 +225,10 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
     private boolean hasGroupBy() {
         return !this.groupByList.isEmpty();
+    }
+
+    private boolean hasPagination() {
+        return this.pager != null;
     }
 
 }

@@ -1,12 +1,14 @@
 package bback.module.poqh3;
 
+import bback.module.poqh3.exceptions.DMLValidationException;
+import bback.module.poqh3.exceptions.TableIsOnlyAcceptEntityException;
 import bback.module.poqh3.target.domain.Member;
 import bback.module.poqh3.target.entity.ArticleEntity;
 import bback.module.poqh3.target.entity.MemberEntity;
-import bback.module.poqh3.exceptions.DMLValidationException;
-import bback.module.poqh3.exceptions.TableIsOnlyAcceptEntityException;
-import bback.module.provider.EntityManagerProvider;
+import bback.module.provider.EntityFactoryProvider;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +16,14 @@ import java.util.List;
 
 
 @DisplayName("JPQL_일반_테스트_그룹")
-class JPQLCommonTest extends EntityManagerProvider {
+class JPQLCommonTest extends EntityFactoryProvider {
+
+    private EntityManagerFactory emf;
+
+    @BeforeEach
+    void before() {
+        emf = loadH2();
+    }
 
     @Test
     @DisplayName("엔티티가_아닌_Class_로_테이블을_추출_Exception_테스트")
@@ -40,7 +49,7 @@ class JPQLCommonTest extends EntityManagerProvider {
         Assertions.assertThrowsExactly(
                 DMLValidationException.class
                 , () -> {
-                    executeQuery(em -> {
+                    executeQuery(emf, em -> {
                         Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
                         Table<ArticleEntity> ARTICLE = Native.TABLE(ArticleEntity.class);
 
@@ -57,7 +66,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("조회_테스트")
     void 조회_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
@@ -72,9 +81,28 @@ class JPQLCommonTest extends EntityManagerProvider {
     }
 
     @Test
+    @DisplayName("조회_페이지네이션_테스트")
+    void 조회_페이지네이션_테스트() {
+        executeQuery(emf, em -> {
+            saveDummyMember(em);
+
+            Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
+
+            List<MemberEntity> memberList = SQLContextFactory.<MemberEntity>getContext(em)
+                    .select(MEMBER.all())
+                    .from(MEMBER)
+                    .offset(0)
+                    .limit(2)
+                    .toResultList(MemberEntity.class);
+
+            Assertions.assertEquals(2, memberList.size());
+        });
+    }
+
+    @Test
     @DisplayName("Order_Id_Desc_테스트")
     void Order_Id_Desc_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
@@ -93,7 +121,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Group_By_테스트")
     void Group_By_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
@@ -115,7 +143,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Equal_테스트")
     void Predictor_Equal_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
@@ -134,7 +162,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Not_Equal_테스트")
     void Where_Predictor_Not_Equal_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
@@ -153,7 +181,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Equal_Result_Null_테스트")
     void Where_Predictor_Equal_Result_Null_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
@@ -175,7 +203,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Greater_Than_테스트")
     void Where_Predictor_Greater_Than_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -194,7 +222,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Greater_Than_And_Equal_테스트")
     void Where_Predictor_Greater_Than_And_Equal_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -213,7 +241,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Less_Than_테스트")
     void Where_Predictor_Less_Than_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -232,7 +260,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Less_Than_And_Equal_테스트")
     void Where_Predictor_Less_Than_And_Equal_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -251,7 +279,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_In_테스트")
     void Where_Predictor_In_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -273,7 +301,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Not_In_테스트")
     void Where_Predictor_Not_In_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -298,7 +326,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Null_테스트")
     void Where_Predictor_Null_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -318,7 +346,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Not_Null_테스트")
     void Where_Predictor_Not_Null_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -337,7 +365,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_LIKE_ANY_테스트")
     void Where_Predictor_LIKE_ANY_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -356,7 +384,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_LIKE_START_테스트")
     void Where_Predictor_LIKE_START_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -383,7 +411,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_LIKE_END_테스트")
     void Where_Predictor_LIKE_END_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -408,7 +436,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Between_테스트")
     void Where_Predictor_Between_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -430,7 +458,7 @@ class JPQLCommonTest extends EntityManagerProvider {
     @Test
     @DisplayName("Where_Predictor_Not_Between_테스트")
     void Where_Predictor_Not_Between_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 

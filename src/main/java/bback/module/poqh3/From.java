@@ -3,7 +3,7 @@ package bback.module.poqh3;
 
 import jakarta.persistence.criteria.JoinType;
 
-public interface From<T> extends OptionalExpression<T>, ResultProvider, Native, JPQL {
+public interface From<T> extends OptionalExpression<T>, PaginationExpression<T>, ResultProvider, Native, JPQL {
 
 
     <R> Join<T,R> join(Table<R> joinTable, JoinType joinType);

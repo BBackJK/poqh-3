@@ -1,5 +1,6 @@
 package bback.module.poqh3.impl;
 
+import bback.module.poqh3.Pager;
 import bback.module.poqh3.QueryResultHandler;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -12,17 +13,33 @@ public class JpqlResultHandler<R> implements QueryResultHandler<R> {
 
     private final EntityManager entityManager;
     private final Class<R> resultType;
+    private final int limit;
+    private final int offset;
 
     public JpqlResultHandler(EntityManager em, Class<R> resultType) {
-        this.entityManager = em;
-        this.resultType = resultType;
+        this(em, resultType, null);
     }
 
-
+    public JpqlResultHandler(EntityManager em, Class<R> resultType, Pager jpqlPager) {
+        this.entityManager = em;
+        this.resultType = resultType;
+        if (jpqlPager != null) {
+            this.limit = jpqlPager.getLimit();
+            this.offset = jpqlPager.getOffset();
+        } else {
+            this.limit = 0;
+            this.offset = 0;
+        }
+    }
 
     @Override
     public List<R> list(String query) {
-        return this.getTypedQuery(query).getResultList();
+        TypedQuery<R> typedQuery = this.getTypedQuery(query);
+        if ( isPagination() ) {
+            typedQuery.setFirstResult(offset);
+            typedQuery.setMaxResults(limit);
+        }
+        return typedQuery.getResultList();
     }
 
     @Override
@@ -37,5 +54,9 @@ public class JpqlResultHandler<R> implements QueryResultHandler<R> {
 
     private TypedQuery<R> getTypedQuery(String query) {
         return this.entityManager.createQuery(query, this.resultType);
+    }
+
+    private boolean isPagination() {
+        return this.limit > 0;
     }
 }

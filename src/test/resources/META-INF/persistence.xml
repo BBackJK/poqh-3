@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
              version="2.1">
-    <persistence-unit name="test-persistence">
+    <persistence-unit name="common-persistence">
 
         <!-- 엔티티 class -->
         <class>bback.module.poqh3.target.entity.MemberEntity</class>
@@ -19,4 +19,41 @@
             <property name="show_sql"                           value="true"/>
         </properties>
     </persistence-unit>
+
+    <persistence-unit name="oracle-persistence">
+
+        <!-- 엔티티 class -->
+        <class>bback.module.poqh3.target.entity.MemberEntity</class>
+        <class>bback.module.poqh3.target.entity.ArticleEntity</class>
+
+        <properties>
+            <!-- 필수 속성 -->
+            <property name="jakarta.persistence.jdbc.driver"    value="org.h2.Driver"/>
+            <property name="jakarta.persistence.jdbc.user"      value="sa"/>
+            <property name="jakarta.persistence.jdbc.password"  value=""/>
+            <property name="jakarta.persistence.jdbc.url"       value="jdbc:h2:mem:poqh3-oracle-test;MODE=ORACLE;" />
+
+            <property name="hibernate.hbm2ddl.auto"             value="create-drop" />
+            <property name="show_sql"                           value="true"/>
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="mysql-persistence">
+
+        <!-- 엔티티 class -->
+        <class>bback.module.poqh3.target.entity.MemberEntity</class>
+        <class>bback.module.poqh3.target.entity.ArticleEntity</class>
+
+        <properties>
+            <!-- 필수 속성 -->
+            <property name="jakarta.persistence.jdbc.driver"    value="org.h2.Driver"/>
+            <property name="jakarta.persistence.jdbc.user"      value="sa"/>
+            <property name="jakarta.persistence.jdbc.password"  value=""/>
+            <property name="jakarta.persistence.jdbc.url"       value="jdbc:h2:mem:poqh3-mysql-test;MODE=MYSQL;" />
+
+            <property name="hibernate.hbm2ddl.auto"             value="create-drop" />
+            <property name="show_sql"                           value="true"/>
+        </properties>
+    </persistence-unit>
+
 </persistence>

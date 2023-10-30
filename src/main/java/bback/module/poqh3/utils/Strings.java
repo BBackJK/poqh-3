@@ -1,6 +1,9 @@
 package bback.module.poqh3.utils;
 
 public final class Strings {
+
+    public static final String EMPTY = "";
+
     private Strings() throws IllegalAccessException {
         throw new IllegalAccessException("is utility class.");
     }

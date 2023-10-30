@@ -5,21 +5,30 @@ import bback.module.poqh3.SQLContextFactory;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.target.entity.ArticleEntity;
 import bback.module.poqh3.target.entity.MemberEntity;
-import bback.module.provider.EntityManagerProvider;
+import bback.module.provider.EntityFactoryProvider;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 @DisplayName("JPQL_JOIN_테스트_그룹")
-class JPQLJoinTest extends EntityManagerProvider {
+class JPQLJoinTest extends EntityFactoryProvider {
+
+    private EntityManagerFactory emf;
+
+    @BeforeEach
+    void before() {
+        emf = loadH2();
+    }
 
     @Test
     @DisplayName("JPQL_JOIN_ON_없이_테스트")
     void JPQL_JOIN_ON_없이_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -44,7 +53,7 @@ class JPQLJoinTest extends EntityManagerProvider {
     @Test
     @DisplayName("JPQL_JOIN_ON_있는데_field명을_member로만_표기한경우_Exception_테스트")
     void JPQL_JOIN_ON_있는데_field명을_member로만_표기한경우_Exception_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -69,7 +78,7 @@ class JPQLJoinTest extends EntityManagerProvider {
     @Test
     @DisplayName("JPQL_JOIN_ON_있는데_field명을_member_id_표기한경우_테스트")
     void JPQL_JOIN_ON_있는데_field명을_member_Id_표기한경우_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 
@@ -90,7 +99,7 @@ class JPQLJoinTest extends EntityManagerProvider {
     @Test
     @DisplayName("JPQL_JOIN_ON_있는데_field명을_memberId_표기한경우_테스트")
     void JPQL_JOIN_ON_있는데_field명을_memberId_표기한경우_테스트() {
-        executeQuery(em -> {
+        executeQuery(emf, em -> {
             saveDummyMember(em);
             saveDummyArticle(em);
 

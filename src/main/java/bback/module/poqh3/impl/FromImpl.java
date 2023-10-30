@@ -97,6 +97,16 @@ class FromImpl<T> implements From<T> {
     }
 
     @Override
+    public SQLContext<T> limit(int limit) {
+        return this.context.limit(limit);
+    }
+
+    @Override
+    public SQLContext<T> offset(int offset) {
+        return this.context.offset(offset);
+    }
+
+    @Override
     public Table<T> getRoot() {
         return this.root;
     }

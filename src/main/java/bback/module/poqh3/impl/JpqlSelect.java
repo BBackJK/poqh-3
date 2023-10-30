@@ -35,7 +35,8 @@ public class JpqlSelect implements Select {
 
     @Override
     public String toQuery() {
-        StringBuilder sb = new StringBuilder(" select ");
+        StringBuilder sb = new StringBuilder(" ");
+        sb.append("select");
         sb.append(" new ");
         sb.append(this.constructorTarget.getName());
         sb.append("( ");

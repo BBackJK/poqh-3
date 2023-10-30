@@ -8,9 +8,22 @@ import jakarta.persistence.Persistence;
 
 import java.util.function.Consumer;
 
-public class EntityManagerProvider {
-    private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("test-persistence");
-    protected void executeQuery(Consumer<EntityManager> consumer) {
+public class EntityFactoryProvider {
+
+
+    protected EntityManagerFactory loadH2() {
+        return getFactory("common-persistence");
+    }
+
+    protected EntityManagerFactory loadOracle() {
+        return getFactory("oracle-persistence");
+    }
+
+    protected EntityManagerFactory loadMysql() {
+        return getFactory("mysql-persistence");
+    }
+
+    protected void executeQuery(EntityManagerFactory emf, Consumer<EntityManager> consumer) {
         EntityManager em = emf.createEntityManager();
 
         try {
@@ -58,5 +71,9 @@ public class EntityManagerProvider {
         em.persist(dummy5);
         em.persist(dummy6);
         em.flush();
+    }
+
+    private EntityManagerFactory getFactory(String persistenceUnitName) {
+        return Persistence.createEntityManagerFactory(persistenceUnitName);
     }
 }
