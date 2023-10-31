@@ -69,15 +69,60 @@ class JpqlFunctionalColumn extends AbstractPredictorColumn implements FunctionCo
                 hour.append(")");
                 yield hour.toString();
             case MINUTE:
-                StringBuilder min = new StringBuilder("minute(");
-                min.append(input.toQuery());
-                min.append(")");
-                yield min.toString();
+                StringBuilder minute = new StringBuilder("minute(");
+                minute.append(input.toQuery());
+                minute.append(")");
+                yield minute.toString();
             case SECOND:
                 StringBuilder sec = new StringBuilder("sec(");
                 sec.append(input.toQuery());
                 sec.append(")");
                 yield sec.toString();
+            case SUM:
+                StringBuilder sum = new StringBuilder("sum(");
+                sum.append(input.toQuery());
+                sum.append(")");
+                yield sum.toString();
+            case MIN:
+                StringBuilder min = new StringBuilder("min(");
+                min.append(input.toQuery());
+                min.append(")");
+                yield min.toString();
+            case MAX:
+                StringBuilder max = new StringBuilder("max(");
+                max.append(input.toQuery());
+                max.append(")");
+                yield max.toString();
+            case AVG:
+                StringBuilder avg = new StringBuilder("avg(");
+                avg.append(input.toQuery());
+                avg.append(")");
+                yield avg.toString();
+            case COUNT:
+                StringBuilder count = new StringBuilder("count(");
+                count.append(input.toQuery());
+                count.append(")");
+                yield count.toString();
+            case TRIM:
+                StringBuilder trim = new StringBuilder("trim(");
+                trim.append(input.toQuery());
+                trim.append(")");
+                yield trim.toString();
+            case LOWER:
+                StringBuilder lower = new StringBuilder("lower(");
+                lower.append(input.toQuery());
+                lower.append(")");
+                yield lower.toString();
+            case UPPER:
+                StringBuilder upper = new StringBuilder("upper(");
+                upper.append(input.toQuery());
+                upper.append(")");
+                yield upper.toString();
+            case LENGTH:
+                StringBuilder length = new StringBuilder("length(");
+                length.append(input.toQuery());
+                length.append(")");
+                yield length.toString();
             default:
                 yield null;
         };

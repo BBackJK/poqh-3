@@ -1,9 +1,6 @@
 package bback.module.poqh3.jpql.functions.aggregations;
 
-import bback.module.poqh3.FunctionTable;
-import bback.module.poqh3.JPQL;
-import bback.module.poqh3.SQLContextFactory;
-import bback.module.poqh3.Table;
+import bback.module.poqh3.*;
 import bback.module.poqh3.target.domain.Member;
 import bback.module.poqh3.target.entity.MemberEntity;
 import bback.module.provider.EntityFactoryProvider;
@@ -33,23 +30,18 @@ class JPQLAggregationTest extends EntityFactoryProvider {
             saveDummyArticle(em);
 
             Table<MemberEntity> MEMBER = JPQL.TABLE(MemberEntity.class);
-            FunctionTable func = JPQL.FUNCTIONS(em);
+            Functions func = JPQL.FUNCTIONS(em);
 
             List<Member> members = SQLContextFactory.<MemberEntity>getContext(em)
-                    .select(MEMBER.all())
-                    .select(func.year(func.currentDateTime()).as("year"))
+                    .select(
+                            MEMBER.col("id")
+                            , func.upper(Column.VALUE(" is test ")).as("name")
+                    )
                     .from(MEMBER)
                     .toResultList(Member.class);
-                    ;
 
             System.out.println(members);
 
-
-//            String query = "select new bback.module.poqh3.target.domain.Member(m.id, m.name, cast(count(a) as int))" +
-//                    "from MemberEntity m join m.articles a group by m.id, m.name";
-//
-//            List<Member> members = em.createQuery(query, Member.class).getResultList();
-//            System.out.println(members);
         });
     }
 }

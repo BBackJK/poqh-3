@@ -13,7 +13,7 @@ enum FunctionCommand {
     , YEAR(Integer.class), MONTH(Integer.class), DAY(Integer.class), HOUR(Integer.class), MINUTE(Integer.class), SECOND(Integer.class)
 
     // aggregation
-    , SUM(Long.class), MIN(Long.class), MAX(Long.class), AVG(Long.class), COUNT(Long.class)
+    , SUM(Integer.class), MIN(Integer.class), MAX(Integer.class), AVG(Double.class), COUNT(Long.class)
 
     // string
     , CONCAT(String.class), SUBSTRING(String.class), TRIM(String.class), LOWER(String.class), UPPER(String.class), LENGTH(String.class)

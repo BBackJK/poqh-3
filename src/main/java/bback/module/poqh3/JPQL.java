@@ -15,7 +15,7 @@ public interface JPQL extends SQL {
         return new JpqlTable<>(entityType, alias);
     }
 
-    static FunctionTable FUNCTIONS(EntityManager entityManager) {
+    static Functions FUNCTIONS(EntityManager entityManager) {
         return new CommonFunctionTable(entityManager, true);
     }
 }

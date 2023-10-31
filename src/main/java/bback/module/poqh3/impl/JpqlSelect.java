@@ -46,23 +46,7 @@ public class JpqlSelect implements Select {
         for (int i=0; i<selectColumnCount;i++, n++) {
             boolean isLast = n == selectColumnCount;
             JpqlColumnParameterWrapper wrapper = this.constructorColumnWrapperList.get(i);
-            boolean isMismatch = wrapper.isMismatchType();
-
-            if ( isMismatch ) {
-                sb.append("cast(");
-            }
-            sb.append(wrapper.getColumnQuery());
-
-            if ( isMismatch ) {
-                sb.append(" as ");
-                sb.append(wrapper.getParameterType());
-                sb.append(")");
-            }
-
-            if ( wrapper.hasAlias() ) {
-                sb.append(" as ");
-                sb.append(wrapper.getAttr());
-            }
+            sb.append(wrapper.toQuery());
             if (!isLast) {
                 sb.append(", ");
             }
@@ -136,11 +120,16 @@ public class JpqlSelect implements Select {
             this.column = column;
         }
 
-        public String getColumnQuery() {
+        private String getColumnQuery() {
+            Class<?> parameterType = this.parameter.getType();
+
+            if (this.column.isNullColumn() && parameterType.isPrimitive()) {
+                return String.valueOf(ClassUtils.getTypeInitValue(parameterType));
+            }
             return this.column.toQuery();
         }
 
-        public boolean isMismatchType() {
+        private boolean isMismatchType() {
             if (this.column.isNullColumn()) {
                 return true;
             }
@@ -168,16 +157,37 @@ public class JpqlSelect implements Select {
             return false;
         }
 
-        public String getParameterType() {
+        private String getParameterType() {
             return this.parameter.getType().getName();
         }
 
-        public boolean hasAlias() {
+        private boolean hasAlias() {
             return this.column.hasAlias();
         }
 
-        public String getAttr() {
+        private String getAttr() {
             return this.column.getAttr();
+        }
+
+        public String toQuery() {
+            StringBuilder sb = new StringBuilder();
+
+            if ( isMismatchType() ) {
+                sb.append("cast(");
+            }
+            sb.append(this.getColumnQuery());
+
+            if ( isMismatchType() ) {
+                sb.append(" as ");
+                sb.append(this.getParameterType());
+                sb.append(")");
+            }
+
+            if ( this.hasAlias() ) {
+                sb.append(" as ");
+                sb.append(this.getAttr());
+            }
+            return sb.toString();
         }
     }
 }
