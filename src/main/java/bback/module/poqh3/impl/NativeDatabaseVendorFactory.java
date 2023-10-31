@@ -3,9 +3,9 @@ package bback.module.poqh3.impl;
 import bback.module.poqh3.Pager;
 import jakarta.persistence.EntityManager;
 
-final class NativeHandlerFactory {
+final class NativeDatabaseVendorFactory {
 
-    private NativeHandlerFactory() throws IllegalAccessException {
+    private NativeDatabaseVendorFactory() throws IllegalAccessException {
         throw new IllegalAccessException("is utility class.");
     }
 
@@ -39,18 +39,13 @@ final class NativeHandlerFactory {
         if (vendor == null) return null; // garbage in, garbage out
 
         switch ( vendor ) {
-            case MYSQL:
-                return new NativeMysqlPager();
-            case MARIA:
-                return new NativeMariaPager();
             case ORACLE:
-                return new NativeOraclePager();
+                return new AbstractNativePager.NativeOraclePager();
             case POSTGRE:
-                return new NativePostgrePager();
             case SQLSERVER:
-                return new NativeMssqlPager();
+                return new AbstractNativePager.NativeMssqlPager();
+            default:
+                return new AbstractNativePager.NativeMysqlPager();
         }
-
-        return new NativeH2Pager();
     }
 }

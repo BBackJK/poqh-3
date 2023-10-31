@@ -1,6 +1,7 @@
 package bback.module.poqh3.impl;
 
 import bback.module.poqh3.Column;
+import bback.module.poqh3.FunctionColumn;
 import bback.module.poqh3.Select;
 import bback.module.poqh3.exceptions.DMLValidationException;
 import bback.module.poqh3.exceptions.NoConstructorException;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class JpqlSelect implements Select {
 
-    private final List<Column> constructorColumnList;
+    private final List<JpqlColumnParameterWrapper> constructorColumnWrapperList;
     private final Constructor<?> constructorTarget;
 
 
@@ -30,7 +31,7 @@ public class JpqlSelect implements Select {
         }
 
         this.constructorTarget = constructor;
-        this.constructorColumnList = this.getConstructorSelectColumnList(constructor, selectColumnList, attrList);
+        this.constructorColumnWrapperList = this.getConstructorSelectColumnList(constructor, selectColumnList, attrList);
     }
 
     @Override
@@ -40,15 +41,27 @@ public class JpqlSelect implements Select {
         sb.append(" new ");
         sb.append(this.constructorTarget.getName());
         sb.append("( ");
-        int selectColumnCount = this.constructorColumnList.size();
+        int selectColumnCount = this.constructorColumnWrapperList.size();
         int n=1;
         for (int i=0; i<selectColumnCount;i++, n++) {
             boolean isLast = n == selectColumnCount;
-            Column column = this.constructorColumnList.get(i);
-            sb.append(column.toQuery());
-            if (column.hasAlias()) {
+            JpqlColumnParameterWrapper wrapper = this.constructorColumnWrapperList.get(i);
+            boolean isMismatch = wrapper.isMismatchType();
+
+            if ( isMismatch ) {
+                sb.append("cast(");
+            }
+            sb.append(wrapper.getColumnQuery());
+
+            if ( isMismatch ) {
                 sb.append(" as ");
-                sb.append(column.getAttr());
+                sb.append(wrapper.getParameterType());
+                sb.append(")");
+            }
+
+            if ( wrapper.hasAlias() ) {
+                sb.append(" as ");
+                sb.append(wrapper.getAttr());
             }
             if (!isLast) {
                 sb.append(", ");
@@ -85,17 +98,18 @@ public class JpqlSelect implements Select {
         return target;
     }
 
-    private List<Column> getConstructorSelectColumnList(Constructor<?> constructor, List<Column> selectColumnList, List<String> attrList) {
-        List<Column> result = new ArrayList<>();
+    private List<JpqlColumnParameterWrapper> getConstructorSelectColumnList(Constructor<?> constructor, List<Column> selectColumnList, List<String> attrList) {
+        List<JpqlColumnParameterWrapper> result = new ArrayList<>();
         Parameter[] parameters = constructor.getParameters();
         int parameterCount = parameters.length;
         for (int i=0; i<parameterCount;i++) {
             Parameter parameter = parameters[i];
             int foundAttrIndex = attrList.indexOf(parameter.getName());
             if ( foundAttrIndex > -1 ) {
-                result.add(selectColumnList.get(foundAttrIndex));
+                Column foundColumn = selectColumnList.get(foundAttrIndex);
+                result.add(new JpqlColumnParameterWrapper(parameter, foundColumn));
             } else {
-                result.add(new NullColumn(parameter.getType()));
+                result.add(new JpqlColumnParameterWrapper(parameter, new NullColumn()));
             }
         }
         return result;
@@ -108,6 +122,62 @@ public class JpqlSelect implements Select {
 
         if (resultType.getDeclaredConstructors().length < 1) {
             throw new NoConstructorException("JPQL 을 생성하려면 조회하고 싶은 객체의 Column 에 맞는 생성자를 생성해주세요.");
+        }
+    }
+
+    class JpqlColumnParameterWrapper {
+
+        private final Parameter parameter;
+
+        private final Column column;
+
+        public JpqlColumnParameterWrapper(Parameter parameter, Column column) {
+            this.parameter = parameter;
+            this.column = column;
+        }
+
+        public String getColumnQuery() {
+            return this.column.toQuery();
+        }
+
+        public boolean isMismatchType() {
+            if (this.column.isNullColumn()) {
+                return true;
+            }
+
+            if (this.column.isJpqlColumn()) {
+                Class<?> columnType = ((JpqlColumn<?>) this.column).getField().getType();
+                Class<?> parameterType = this.parameter.getType();
+                if ( columnType.equals(parameterType) ) {
+                    return false;
+                }
+                Class<?> parameterWrapperType = ClassUtils.getWrapperClass(parameterType);
+                return !columnType.equals(parameterWrapperType);
+            }
+
+            if (this.column.isFunctional()) {
+                Class<?> columnType = ((FunctionColumn) this.column).getCommandHibernateReturnType();
+                Class<?> parameterType = this.parameter.getType();
+                if ( columnType.equals(parameterType) ) {
+                    return false;
+                }
+                Class<?> parameterWrapperType = ClassUtils.getWrapperClass(parameterType);
+                return !columnType.equals(parameterWrapperType);
+            }
+
+            return false;
+        }
+
+        public String getParameterType() {
+            return this.parameter.getType().getName();
+        }
+
+        public boolean hasAlias() {
+            return this.column.hasAlias();
+        }
+
+        public String getAttr() {
+            return this.column.getAttr();
         }
     }
 }

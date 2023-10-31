@@ -1,4 +1,4 @@
-package bback.module.poqh3.mysql;
+package bback.module.poqh3.nativesql.mysql;
 
 import bback.module.poqh3.Native;
 import bback.module.poqh3.SQLContextFactory;

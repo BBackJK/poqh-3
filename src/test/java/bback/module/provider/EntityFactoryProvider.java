@@ -57,12 +57,18 @@ public class EntityFactoryProvider {
 
         ArticleEntity dummy1 = new ArticleEntity(null, "제목1", "내용1234", test2Member);
         ArticleEntity dummy2 = new ArticleEntity(null, "제목2", "내용2", test2Member);
+        test2Member.addArticle(dummy1);
+        test2Member.addArticle(dummy2);
 
         ArticleEntity dummy3 = new ArticleEntity(null, "제목3", "내3", test1Member);
         ArticleEntity dummy4 = new ArticleEntity(null, "제목4", "내용45", test1Member);
         ArticleEntity dummy5 = new ArticleEntity(null, "제목5", "내용1235", test1Member);
+        test1Member.addArticle(dummy3);
+        test1Member.addArticle(dummy4);
+        test1Member.addArticle(dummy5);
 
         ArticleEntity dummy6 = new ArticleEntity(null, "제목6", null, test3Member);
+        test3Member.addArticle(dummy6);
 
         em.persist(dummy1);
         em.persist(dummy2);

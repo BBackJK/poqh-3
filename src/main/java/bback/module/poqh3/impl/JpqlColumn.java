@@ -1,5 +1,6 @@
 package bback.module.poqh3.impl;
 
+import bback.module.poqh3.Column;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.utils.Strings;
 
@@ -10,7 +11,7 @@ class JpqlColumn<T> extends AbstractPredictorColumn {
     private final Table<T> table;
     private final Field field; // table entity class 에 대한 field
     private final Field foreignField;
-    private final String alias;
+    private String alias;
 
     public JpqlColumn(Table<T> table, Field field) {
         this(table, field, (String) null);
@@ -45,6 +46,15 @@ class JpqlColumn<T> extends AbstractPredictorColumn {
     }
 
     @Override
+    public Column as(String alias) {
+        if ( hasAlias() ) {
+            return new JpqlColumn<>(this.table, this.field, this.foreignField, alias);
+        }
+        this.alias = alias;
+        return this;
+    }
+
+    @Override
     public String getAttr() {
         return hasAlias() ? getAlias() : this.field.getName();
     }
@@ -57,6 +67,11 @@ class JpqlColumn<T> extends AbstractPredictorColumn {
     @Override
     public boolean hasAlias() {
         return this.alias != null && !this.alias.isEmpty();
+    }
+
+    @Override
+    public boolean isJpqlColumn() {
+        return true;
     }
 
     public Field getField() {

@@ -33,7 +33,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
 
     public SQLContextImpl(EntityManager entityManager, ObjectMapper om) {
         this.entityManager = entityManager;
-        this.databaseVendor = NativeHandlerFactory.getVendor(entityManager);
+        this.databaseVendor = NativeDatabaseVendorFactory.getVendor(entityManager);
         this.om = om;
     }
 
@@ -112,7 +112,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     @Override
     public SQLContext<T> limit(int limit) {
         if ( !this.hasPagination() ) {
-            this.pager = isJpql ? new JpqlPager() : NativeHandlerFactory.getPager(this.databaseVendor);
+            this.pager = isJpql ? new JpqlPager() : NativeDatabaseVendorFactory.getPager(this.databaseVendor);
         }
         this.pager.setLimit(limit);
         return this;
@@ -121,7 +121,7 @@ public class SQLContextImpl<T> implements SQLContext<T> {
     @Override
     public SQLContext<T> offset(int offset) {
         if ( !this.hasPagination() ) {
-            this.pager = isJpql ? new JpqlPager() : NativeHandlerFactory.getPager(this.databaseVendor);
+            this.pager = isJpql ? new JpqlPager() : NativeDatabaseVendorFactory.getPager(this.databaseVendor);
         }
         this.pager.setOffset(offset);
         return this;

@@ -1,30 +1,36 @@
 package bback.module.poqh3.impl;
 
+import bback.module.poqh3.Column;
+
 class NullColumn extends AbstractPredictorColumn {
-
-    private final Class<?> constructorParameterType;
-
-    public NullColumn(Class<?> constructorParameterType) {
-        this.constructorParameterType = constructorParameterType;
-    }
 
     @Override
     public String toQuery() {
-        return String.format("cast(null as %s)", constructorParameterType.getName());
+        return "null";
+    }
+
+    @Override
+    public Column as(String alias) {
+        return this;
     }
 
     @Override
     public String getAttr() {
-        return constructorParameterType.getName();
+        return "";
     }
 
     @Override
     public String getAlias() {
-        return constructorParameterType.getName();
+        return "";
     }
 
     @Override
     public boolean hasAlias() {
         return false;
+    }
+
+    @Override
+    public boolean isNullColumn() {
+        return true;
     }
 }

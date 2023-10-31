@@ -1,4 +1,4 @@
-package bback.module.poqh3.oracle;
+package bback.module.poqh3.nativesql.oracle;
 
 import bback.module.poqh3.Native;
 import bback.module.poqh3.SQLContextFactory;

@@ -64,7 +64,7 @@ public class ArticleEntity {
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", contents='" + contents + '\'' +
-                ", member=" + member +
+//                ", member=" + member +
                 '}';
     }
 }

@@ -1,4 +1,4 @@
-package bback.module.poqh3.join;
+package bback.module.poqh3.jpql.join;
 
 import bback.module.poqh3.JPQL;
 import bback.module.poqh3.SQLContextFactory;

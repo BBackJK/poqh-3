@@ -42,6 +42,8 @@ public final class PersistenceUtils {
         for (int i=0; i<columnCount; i++) {
             Field field = columnList.get(i);
 
+            if ( ClassUtils.isListType(field.getType()) ) continue;
+
             Column column = field.getAnnotation(Column.class);
             if ( column != null && !column.name().isEmpty() ) {
                 result.add(column.name());

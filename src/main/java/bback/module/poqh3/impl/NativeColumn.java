@@ -1,6 +1,7 @@
 package bback.module.poqh3.impl;
 
 
+import bback.module.poqh3.Column;
 import bback.module.poqh3.Table;
 import bback.module.poqh3.utils.Strings;
 
@@ -8,7 +9,7 @@ class NativeColumn<T> extends AbstractPredictorColumn {
 
     private final Table<T> table;
     private final String field;
-    private final String alias;
+    private String alias;
 
     public NativeColumn(Table<T> table, String field) {
         this(table, field, null);
@@ -23,6 +24,15 @@ class NativeColumn<T> extends AbstractPredictorColumn {
     @Override
     public String toQuery() {
         return String.format("%s.%s", this.table.getAlias(), field);
+    }
+
+    @Override
+    public Column as(String alias) {
+        if ( hasAlias() ) {
+            return new NativeColumn<>(this.table, this.field, alias);
+        }
+        this.alias = alias;
+        return this;
     }
 
     @Override

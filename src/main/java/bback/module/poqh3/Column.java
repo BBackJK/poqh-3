@@ -7,9 +7,23 @@ import java.util.List;
 
 public interface Column extends PredictorProvider, Native, JPQL {
 
+    Column as(String alias);
+
     String getAttr();
     String getAlias();
     boolean hasAlias();
+
+    default boolean isNullColumn() {
+        return false;
+    }
+
+    default boolean isJpqlColumn() {
+        return false;
+    }
+
+    default boolean isFunctional() {
+        return false;
+    }
 
     static Value VALUE(Object data) {
         return new Value(data);

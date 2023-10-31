@@ -1,5 +1,6 @@
-package bback.module.poqh3;
+package bback.module.poqh3.jpql;
 
+import bback.module.poqh3.*;
 import bback.module.poqh3.exceptions.DMLValidationException;
 import bback.module.poqh3.exceptions.TableIsOnlyAcceptEntityException;
 import bback.module.poqh3.target.domain.Member;

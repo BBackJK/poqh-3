@@ -76,4 +76,11 @@ public final class ClassUtils {
     public static boolean isPrimitiveOrWrapper(Class<?> clz) {
         return clz != null && (clz.isPrimitive() || PRIMITIVE_WRAPPER_CLASS_MAP.values().stream().anyMatch(clz::equals));
     }
+
+    public static Class<?> getWrapperClass(Class<?> clz) {
+        if ( clz == null ) {
+            return null;
+        }
+        return PRIMITIVE_WRAPPER_CLASS_MAP.get(clz);
+    }
 }

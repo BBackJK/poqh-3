@@ -1,5 +1,6 @@
-package bback.module.poqh3;
+package bback.module.poqh3.nativesql;
 
+import bback.module.poqh3.*;
 import bback.module.poqh3.target.domain.EmptyConstructorArticle;
 import bback.module.poqh3.target.entity.ArticleEntity;
 import bback.module.poqh3.target.entity.MemberEntity;
